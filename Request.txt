@@ -1,0 +1,8 @@
+- Request Method : GET
+- HTTP Status Code : 200 OK (Menandakan bahwa request dari client berhasil diterima dan diproses oleh server dengan baik)
+- Tipe Konten (Content-Type) : text/html
+
+Detail Waktu Eksekusi:
+> Menunggu respons server (Waiting) : 35.31 milidetik
+> Mengunduh konten (Content Download) : 0.52 milidetik
+> Waktu penyelesaian keseluruhan (termasuk waktu antrean) : sekitar 37.51 milidetik
