@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praktikum Pemrograman Web</title>
 </head>
-
 <body>
     <header>
         <h1>Praktikum Pemrograman Web</h1>
-        <nav>
+        <p>Portal Sistem Informasi &amp; E-Commerce UMKM Wilayah Pesisir</p>
+        <nav aria-label="Navigasi Utama">
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="#produk">Produk</a></li>
@@ -25,14 +24,41 @@
         <section id="beranda">
             <h2>Selamat Datang di Website Saya</h2>
             <p>Ini adalah halaman utama dari website saya untuk praktikum pemrograman web.</p>
+            <figure>
+                <img 
+                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='20' viewBox='0 0 300 20'%3E%3Cpath d='M0,10 Q75,0 150,10 T300,10' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E" 
+                    alt="" 
+                    role="presentation" 
+                >
+            </figure>
         </section>
 
         <section id="produk">
             <h2>Daftar Produk UMKM</h2>
             <article>
                 <h3>Keripik Ikan Tenggiri</h3>
+                <figure>
+                    <img 
+                        src="https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=400&q=80" 
+                        alt="Kemasan keripik ikan tenggiri khas pesisir 250 gram dengan label halal dan sertifikasi P-IRT" 
+                    >
+                    <figcaption>Gambar 1: Kemasan Keripik Ikan Tenggiri Gurih Renyah.</figcaption>
+                </figure>
                 <p>Olahan keripik ikan khas pesisir yang renyah dan gurih.</p>
                 <p>Harga: Rp 25.000</p>
+            </article>
+
+            <article>
+                <h3>Terasi Udang Rebon Asli</h3>
+                <figure>
+                    <img 
+                        src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80" 
+                        alt="Terasi udang rebon asli pesisir berbentuk balok padat dengan kemasan daun pisang tradisional" 
+                    >
+                    <figcaption>Gambar 2: Terasi Udang Rebon Fermentasi Alami.</figcaption>
+                </figure>
+                <p>Dibuat dari 100% udang rebon segar melalui fermentasi alami dan penjemuran sinar matahari pesisir.</p>
+                <p>Harga: Rp 18.500</p>
             </article>
         </section>
 
@@ -47,15 +73,15 @@
             <form action="#" method="post">
                 <p>
                     <label for="nama">Nama:</label><br>
-                    <input type="text" id="nama" name="nama" required>
+                    <input type="text" id="nama" name="nama" required placeholder="Masukkan nama Anda">
                 </p>
                 <p>
                     <label for="email">Email:</label><br>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required placeholder="nama@email.com">
                 </p>
                 <p>
                     <label for="pesan">Pesan:</label><br>
-                    <textarea id="pesan" name="pesan" rows="4" cols="30" required></textarea>
+                    <textarea id="pesan" name="pesan" rows="4" cols="30" required placeholder="Tuliskan pesan Anda di sini..."></textarea>
                 </p>
                 <p>
                     <button type="submit">Kirim</button>
@@ -65,7 +91,10 @@
 
         <section id="alamat">
             <h2>Alamat</h2>
-            <p>Jl. Mulawarman RT 69 No 67</p>
+            <address>
+                <p>Jl. Mulawarman RT 69 No 67</p>
+                <p>Email: <a href="mailto:kontak@pesisir.test">kontak@pesisir.test</a></p>
+            </address>
         </section>
     </main>
 
@@ -73,5 +102,4 @@
         <p>Copy kanan 2026</p>
     </footer>
 </body>
-
 </html>
