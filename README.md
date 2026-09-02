@@ -4,7 +4,7 @@
 - **Mata Kuliah:** Pemrograman Web (OBE)
 - **Studi Kasus:** Sistem Informasi & E-Commerce UMKM Wilayah Pesisir (Technopreneurship Komoditas Hasil Laut)
 - **Pendekatan:** Pengembangan Web Bertahap (Incremental Development)
-- **Nama / NIM:** [Nama / NIM Mahasiswa]
+- **Nama / NIM:** Muhammad Aril Saputra
 
 ---
 
