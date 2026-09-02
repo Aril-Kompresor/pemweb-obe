@@ -1,14 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Praktikum Pemrograman Web</title>
 </head>
 
 <body>
-    <h1>Praktikum Pemrograman Web</h1>
+    <header>
+        <h1>Praktikum Pemrograman Web</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#produk">Produk</a></li>
+                <li><a href="#informasi">Informasi</a></li>
+                <li><a href="#kontak">Kontak</a></li>
+                <li><a href="#alamat">Alamat</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="beranda">
+            <h2>Selamat Datang di Website Saya</h2>
+            <p>Ini adalah halaman utama dari website saya untuk praktikum pemrograman web.</p>
+        </section>
+
+        <section id="produk">
+            <h2>Daftar Produk UMKM</h2>
+            <article>
+                <h3>Keripik Ikan Tenggiri</h3>
+                <p>Olahan keripik ikan khas pesisir yang renyah dan gurih.</p>
+                <p>Harga: Rp 25.000</p>
+            </article>
+        </section>
+
+        <section id="informasi">
+            <h2>Informasi</h2>
+            <p>Website ini dibuat untuk keperluan praktikum pemrograman web.</p>
+        </section>
+
+        <section id="kontak">
+            <h2>Kontak</h2>
+            <p>Jika Anda memiliki pertanyaan, silakan hubungi saya melalui formulir berikut:</p>
+            <form action="#" method="post">
+                <p>
+                    <label for="nama">Nama:</label><br>
+                    <input type="text" id="nama" name="nama" required>
+                </p>
+                <p>
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email" required>
+                </p>
+                <p>
+                    <label for="pesan">Pesan:</label><br>
+                    <textarea id="pesan" name="pesan" rows="4" cols="30" required></textarea>
+                </p>
+                <p>
+                    <button type="submit">Kirim</button>
+                </p>
+            </form>
+        </section>
+
+        <section id="alamat">
+            <h2>Alamat</h2>
+            <p>Jl. Mulawarman RT 69 No 67</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Copy kanan 2026</p>
+    </footer>
 </body>
 
 </html>
