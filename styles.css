@@ -1,0 +1,152 @@
+:root {
+  --space-1: .5rem;
+  --space-2: 1rem;
+  --brand: #4f46e5;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --radius: .75rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.container {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: var(--radius);
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+  margin-bottom: var(--space-2);
+}
+
+select,
+input[type="number"],
+input[type="search"] {
+  padding: var(--space-1) var(--space-2);
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  margin-top: var(--space-1);
+}
+
+.empty-message {
+  grid-column: 1 / -1;
+  padding: 1.5rem var(--space-2);
+  background-color: #f9fafb;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius);
+  text-align: center;
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+button {
+  padding: var(--space-1) var(--space-2);
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  background-color: var(--brand);
+  color: #fff;
+  cursor: pointer;
+}
+
+button#btn-reset-id {
+  background-color: #f3f4f6;
+  color: var(--text);
+}
+
+.btn-detail {
+  margin-top: var(--space-1);
+  background-color: #0284c7;
+  color: #fff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.btn-detail:hover {
+  background-color: #0369a1;
+}
+
+dialog.modal-dialog {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  max-width: 32rem;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal-card h3 {
+  margin-top: 0;
+  color: var(--brand);
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+#btn-tutup-detail {
+  margin-top: 1rem;
+  background-color: #64748b;
+  width: 100%;
+}
+
+#btn-tutup-detail:hover {
+  background-color: #475569;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 3px;
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

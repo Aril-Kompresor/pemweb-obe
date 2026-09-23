@@ -1,70 +1,126 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praktikum Pemrograman Web</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <header>
+    <header class="container">
+        <a href="index.html">
+            <img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=100&q=80"
+                alt="Beranda Portal UMKM Pesisir" width="80" height="80">
+        </a>
         <h1>Praktikum Pemrograman Web</h1>
         <p>Portal Sistem Informasi &amp; E-Commerce UMKM Wilayah Pesisir</p>
         <nav aria-label="Navigasi Utama">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="#produk">Produk</a></li>
-                <li><a href="#informasi">Informasi</a></li>
-                <li><a href="#kontak">Kontak</a></li>
-                <li><a href="#alamat">Alamat</a></li>
-            </ul>
+            <a href="index.html">Home</a>
+            <a href="#produk">Produk</a>
+            <a href="#alat">Alat</a>
+            <a href="#informasi">Informasi</a>
+            <a href="#kontak">Kontak</a>
+            <a href="#alamat">Alamat</a>
         </nav>
     </header>
 
-    <main>
-        <section id="beranda">
-            <h2>Selamat Datang di Website Saya</h2>
-            <p>Ini adalah halaman utama dari website saya untuk praktikum pemrograman web.</p>
+    <main class="container">
+        <section id="beranda" class="hero">
+            <div>
+                <h2>Selamat Datang di Website Saya</h2>
+                <p>Ini adalah halaman utama dari website saya untuk praktikum pemrograman web.</p>
+            </div>
             <figure>
-                <img 
-                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='20' viewBox='0 0 300 20'%3E%3Cpath d='M0,10 Q75,0 150,10 T300,10' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E" 
-                    alt="" 
-                    role="presentation" 
-                >
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='20' viewBox='0 0 300 20'%3E%3Cpath d='M0,10 Q75,0 150,10 T300,10' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E"
+                    alt="" role="presentation" width="100%">
             </figure>
         </section>
 
         <section id="produk">
             <h2>Daftar Produk UMKM</h2>
-            <article>
-                <h3>Keripik Ikan Tenggiri</h3>
-                <figure>
-                    <img 
-                        src="https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=400&q=80" 
-                        alt="Kemasan keripik ikan tenggiri khas pesisir 250 gram dengan label halal dan sertifikasi P-IRT" 
-                    >
-                    <figcaption>Gambar 1: Kemasan Keripik Ikan Tenggiri Gurih Renyah.</figcaption>
-                </figure>
-                <p>Olahan keripik ikan khas pesisir yang renyah dan gurih.</p>
-                <p>Harga: Rp 25.000</p>
-            </article>
+            <div class="cards">
+                <article class="card">
+                    <h3>Keripik Ikan Tenggiri</h3>
+                    <figure>
+                        <img src="https://images.unsplash.com/photo-1534483509719-3feaee7c30da?auto=format&fit=crop&w=400&q=80"
+                            alt="Kemasan keripik ikan tenggiri khas pesisir 250 gram dengan label halal dan sertifikasi P-IRT"
+                            width="100%">
+                        <figcaption>Gambar 1: Kemasan Keripik Ikan Tenggiri Gurih Renyah.</figcaption>
+                    </figure>
+                    <p>Olahan keripik ikan khas pesisir yang renyah dan gurih.</p>
+                    <p>Harga: Rp 25.000</p>
+                </article>
 
-            <article>
-                <h3>Terasi Udang Rebon Asli</h3>
-                <figure>
-                    <img 
-                        src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80" 
-                        alt="Terasi udang rebon asli pesisir berbentuk balok padat dengan kemasan daun pisang tradisional" 
-                    >
-                    <figcaption>Gambar 2: Terasi Udang Rebon Fermentasi Alami.</figcaption>
-                </figure>
-                <p>Dibuat dari 100% udang rebon segar melalui fermentasi alami dan penjemuran sinar matahari pesisir.</p>
-                <p>Harga: Rp 18.500</p>
-            </article>
+                <article class="card">
+                    <h3>Terasi Udang Rebon Asli</h3>
+                    <figure>
+                        <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80"
+                            alt="Terasi udang rebon asli pesisir berbentuk balok padat dengan kemasan daun pisang tradisional"
+                            width="100%">
+                        <figcaption>Gambar 2: Terasi Udang Rebon Fermentasi Alami.</figcaption>
+                    </figure>
+                    <p>Dibuat dari 100% udang rebon segar melalui fermentasi alami dan penjemuran sinar matahari
+                        pesisir.</p>
+                    <p>Harga: Rp 18.500</p>
+                </article>
+
+                <article class="card">
+                    <h3>Abon Ikan Cakalang</h3>
+                    <figure>
+                        <img src="https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=400&q=80"
+                            alt="Kemasan abon ikan cakalang rempah gurih khas pesisir 200 gram" width="100%">
+                        <figcaption>Gambar 3: Abon Ikan Cakalang Bumbu Rempah Pesisir.</figcaption>
+                    </figure>
+                    <p>Abon ikan cakalang gurih dengan rempah tradisional pilihan khas pesisir.</p>
+                    <p>Harga: Rp 32.000</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="alat">
+            <h2>Inventaris Alat Pesisir</h2>
+            <p>Cari alat berdasarkan nama, filter berdasarkan lokasi, atau temukan berdasarkan ID:</p>
+            <div class="filter-controls">
+                <div>
+                    <label for="search">Cari alat</label><br>
+                    <input id="search" type="search" placeholder="Ketik nama alat...">
+                </div>
+                <div>
+                    <label for="filter-lokasi">Pilih Lokasi:</label><br>
+                    <select id="filter-lokasi">
+                        <option value="Semua">Semua Lokasi</option>
+                        <option value="Gudang A">Gudang A</option>
+                        <option value="Dermaga 1">Dermaga 1</option>
+                        <option value="Kapal 01">Kapal 01</option>
+                        <option value="Sentra UMKM">Sentra UMKM</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="cari-id">Cari Berdasarkan ID:</label><br>
+                    <input type="number" id="cari-id" placeholder="Masukkan ID">
+                    <button type="button" id="btn-cari-id">Cari</button>
+                    <button type="button" id="btn-reset-id">Reset</button>
+                </div>
+            </div>
+            <div id="daftar-alat" class="cards"></div>
+
+            <dialog id="modal-detail" class="modal-dialog">
+                <div class="modal-card">
+                    <div id="modal-detail-content"></div>
+                    <button type="button" id="btn-tutup-detail">Tutup Detail</button>
+                </div>
+            </dialog>
         </section>
 
         <section id="informasi">
             <h2>Informasi</h2>
             <p>Website ini dibuat untuk keperluan praktikum pemrograman web.</p>
+            <figure>
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='20' viewBox='0 0 100 20'%3E%3Ccircle cx='20' cy='10' r='5' fill='%23666'/%3E%3Ccircle cx='50' cy='10' r='7' fill='%23333'/%3E%3Ccircle cx='80' cy='10' r='5' fill='%23666'/%3E%3C/svg%3E"
+                    alt="" role="presentation">
+            </figure>
         </section>
 
         <section id="kontak">
@@ -81,7 +137,8 @@
                 </p>
                 <p>
                     <label for="pesan">Pesan:</label><br>
-                    <textarea id="pesan" name="pesan" rows="4" cols="30" required placeholder="Tuliskan pesan Anda di sini..."></textarea>
+                    <textarea id="pesan" name="pesan" rows="4" cols="30" required
+                        placeholder="Tuliskan pesan Anda di sini..."></textarea>
                 </p>
                 <p>
                     <button type="submit">Kirim</button>
@@ -93,13 +150,15 @@
             <h2>Alamat</h2>
             <address>
                 <p>Jl. Mulawarman RT 69 No 67</p>
-                <p>Email: <a href="mailto:kontak@pesisir.test">kontak@pesisir.test</a></p>
+                <p>Email: <a href="mailto:mrpesisir@gmail.com">akuhpesisir@gmail.com</a></p>
             </address>
         </section>
     </main>
 
-    <footer>
+    <footer class="container">
         <p>Copy kanan 2026</p>
     </footer>
+    <script src="script.js"></script>
 </body>
+
 </html>

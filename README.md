@@ -4,7 +4,7 @@
 - **Mata Kuliah:** Pemrograman Web (OBE)
 - **Studi Kasus:** Sistem Informasi & E-Commerce UMKM Wilayah Pesisir (Technopreneurship Komoditas Hasil Laut)
 - **Pendekatan:** Pengembangan Web Bertahap (Incremental Development)
-- **Nama / NIM:** [Nama / NIM Mahasiswa]
+- **Nama / NIM:** Muhammad Aril Saputra - 2440304029
 
 ---
 
@@ -23,8 +23,18 @@ Halaman ini berfungsi sebagai portal informasi, etalase katalog produk olahan ha
   - Gambar konten informatif dilengkapi atribut `alt` deskriptif.
   - Elemen gambar dekoratif dilengkapi atribut `alt=""` dan `role="presentation"` / `aria-hidden="true"`.
 - [x] **Formulir Kontak Semantik:** Form input dilengkapi pasangan `<label for="...">` dan `<input id="...">` yang terhubung secara eksplisit.
-- [x] **Aksesibilitas Navigasi Keyboard:** Seluruh tautan navigasi dan kontrol formulir dapat dijelajahi dengan urutan fokus logis (*Tab Order*) tanpa jebakan fokus (*no keyboard trap*).
-- [x] **Pembersihan CSS:** Kode murni HTML5 semantik tanpa dependensi CSS eksternal maupun inline style untuk staging awal.
+- [x] **Aksesibilitas Navigasi Keyboard (WCAG 2.1 Focus State):** Seluruh tautan navigasi dan kontrol formulir memiliki *focus indicator* yang sangat jelas (`:focus-visible` ring warna Sky Blue dengan outline-offset 2px), tanpa jebakan fokus (*no keyboard trap*).
+- [x] **Arsitektur CSS & Design Tokens (Tahap 2):**
+  - Terhubung dengan `styles.css` eksternal dan Google Fonts `Plus Jakarta Sans`.
+  - CSS Reset modern dan universal `box-sizing: border-box`.
+  - Custom properties (`:root`) untuk token warna maritim pesisir, skala spacing 8-pt, dan border radius.
+  - Navigasi responsif berbasis **Flexbox** dan kartu etalase produk berbasis **CSS Grid** (termasuk grid internal kartu).
+  - *Content-driven media queries* teruji pada viewport **320px, 768px, 1024px, dan 1280px+ (desktop)** dengan zero-overflow (`overflow-x = 0`).
+- [x] **Interaktivitas JavaScript (Tahap 3):**
+  - Array inventaris peralatan pesisir (`daftarAlat` / `inventaris`).
+  - Fitur pencarian alat real-time (`#search`) case-insensitive dengan pesan ramah jika tidak ditemukan.
+  - Fitur filter lokasi dan pencarian ID alat.
+  - **Tombol Detail & Event Delegation (Praktikum 2):** Tombol dinamis dengan atribut dataset `data-detail`, ditangani menggunakan *single event listener* pada container induk (`#daftar-alat`) melalui event delegation, serta menampilkan dialog semantik HTML5 (`<dialog id="modal-detail">`).
 
 ---
 
