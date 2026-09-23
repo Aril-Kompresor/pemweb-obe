@@ -35,6 +35,7 @@ Halaman ini berfungsi sebagai portal informasi, etalase katalog produk olahan ha
   - Fitur pencarian alat real-time (`#search`) case-insensitive dengan pesan ramah jika tidak ditemukan.
   - Fitur filter lokasi dan pencarian ID alat.
   - **Tombol Detail & Event Delegation (Praktikum 2):** Tombol dinamis dengan atribut dataset `data-detail`, ditangani menggunakan *single event listener* pada container induk (`#daftar-alat`) melalui event delegation, serta menampilkan dialog semantik HTML5 (`<dialog id="modal-detail">`).
+  - **Preferensi Limit Jumlah Item (Praktikum 3):** Dropdown pilihan batas item (5/10/20) yang disimpan ke `localStorage`, membaca preferensi tersimpan saat reload menggunakan operator `?? '5'`, dan merender item menggunakan `Array.slice()`.
 
 ---
 

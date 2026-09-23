@@ -4,7 +4,13 @@ const daftarAlat = [
   { id: 3, nama: "GPS Tracker", jenis: "Navigasi", jumlah: 3, lokasi: "Kapal 01" },
   { id: 4, nama: "Timbangan Digital", jenis: "Pengolahan", jumlah: 7, lokasi: "Gudang A" },
   { id: 5, nama: "Mesin Vacuum Sealer", jenis: "Pengemasan", jumlah: 2, lokasi: "Sentra UMKM" },
-  { id: 6, nama: "Life Jacket", jenis: "Keselamatan", jumlah: 20, lokasi: "Dermaga 1" }
+  { id: 6, nama: "Life Jacket", jenis: "Keselamatan", jumlah: 20, lokasi: "Dermaga 1" },
+  { id: 7, nama: "Lampu Badai Pesisir", jenis: "Navigasi", jumlah: 12, lokasi: "Kapal 01" },
+  { id: 8, nama: "Pukat Cincin", jenis: "Tangkap", jumlah: 4, lokasi: "Gudang A" },
+  { id: 9, nama: "Fish Finder Sonar", jenis: "Navigasi", jumlah: 2, lokasi: "Kapal 01" },
+  { id: 10, nama: "Keranjang Ikan Higienis", jenis: "Penyimpanan", jumlah: 25, lokasi: "Dermaga 1" },
+  { id: 11, nama: "Perahu Karet Rescue", jenis: "Keselamatan", jumlah: 1, lokasi: "Dermaga 1" },
+  { id: 12, nama: "Solar Cell Panel", jenis: "Pengolahan", jumlah: 6, lokasi: "Sentra UMKM" }
 ];
 const inventaris = daftarAlat; // Variabel inventaris data proyek sesuai modul praktikum
 
@@ -78,6 +84,7 @@ function initApp() {
   const btnCariId = document.getElementById("btn-cari-id");
   const btnResetId = document.getElementById("btn-reset-id");
   const search = document.querySelector("#search");
+  const limit = document.querySelector("#limit");
 
   if (!containerAlat) return;
 
@@ -175,28 +182,41 @@ function initApp() {
     });
   }
 
+  // Pengaturan Limit dengan LocalStorage (Latihan Praktikum 3)
+  if (limit) {
+    limit.value = localStorage.getItem("limit") ?? "5";
+
+    limit.addEventListener("change", () => {
+      localStorage.setItem("limit", limit.value);
+      renderItems(inventaris.slice(0, Number(limit.value)));
+    });
+  }
+
   function renderDaftarAlat(lokasi) {
+    const batas = limit ? Number(limit.value) : 5;
     const hasil = lokasi === "Semua"
       ? inventaris
       : inventaris.filter(alat => alat.lokasi === lokasi);
-    renderItems(hasil);
+    renderItems(hasil.slice(0, batas));
   }
 
   // Event listener fitur pencarian alat real-time sesuai instruksi praktikum
   if (search) {
     search.addEventListener("input", (event) => {
       const keyword = event.target.value.toLowerCase().trim();
+      const batas = limit ? Number(limit.value) : 5;
       const hasil = inventaris.filter(item => 
         item.nama.toLowerCase().includes(keyword)
       );
-      renderItems(hasil);
+      renderItems(hasil.slice(0, batas));
     });
   }
 
   function handleCariById() {
     const id = inputCariId ? inputCariId.value.trim() : "";
     if (!id) {
-      renderItems(inventaris);
+      const batas = limit ? Number(limit.value) : 5;
+      renderItems(inventaris.slice(0, batas));
       return;
     }
 
@@ -240,12 +260,14 @@ function initApp() {
       if (inputCariId) inputCariId.value = "";
       if (search) search.value = "";
       if (selectLokasi) selectLokasi.value = "Semua";
-      renderItems(inventaris);
+      const batas = limit ? Number(limit.value) : 5;
+      renderItems(inventaris.slice(0, batas));
     });
   }
 
-  // Tampilkan seluruh inventaris saat halaman pertama kali dimuat
-  renderItems(inventaris);
+  // Tampilkan inventaris sesuai batas preferensi saat halaman pertama kali dimuat
+  const batasAwal = limit ? Number(limit.value) : 5;
+  renderItems(inventaris.slice(0, batasAwal));
 
   // Inisialisasi otomatis jika ada parameter URL (?search=... atau ?detail=...)
   if (typeof window !== "undefined" && window.location) {
@@ -259,6 +281,11 @@ function initApp() {
     if (initialDetail) {
       const item = inventaris.find(data => data.id === Number(initialDetail));
       if (item) tampilkanDetail(item);
+    }
+    const initialLimit = urlParams.get("limit");
+    if (initialLimit && limit) {
+      limit.value = initialLimit;
+      limit.dispatchEvent(new Event("change"));
     }
   }
 }
