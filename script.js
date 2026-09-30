@@ -290,10 +290,54 @@ function initApp() {
   }
 }
 
-if (typeof document !== "undefined") {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initApp);
-  } else {
-    initApp();
+// Inisialisasi Aksesibilitas Formulir Pemesanan & Layanan UMKM
+function initAccessibleForm() {
+  const form = document.getElementById("form-pemesanan");
+  const statusContainer = document.getElementById("form-status");
+  const btnReset = document.getElementById("btn-reset-pesanan");
+
+  if (!form || !statusContainer) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (!form.checkValidity()) {
+      statusContainer.className = "form-status is-visible status-error";
+      statusContainer.innerHTML = "⚠️ <strong>Mohon periksa kembali:</strong> Harap lengkapi semua kolom bertanda bintang (*) dan setujui syarat &amp; ketentuan sebelum mengirim formulir.";
+      const firstInvalid = form.querySelector(":invalid");
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    const nama = document.getElementById("nama-pemesan") ? document.getElementById("nama-pemesan").value.trim() : "Pemesan";
+    const kategori = document.getElementById("kategori-layanan") ? document.getElementById("kategori-layanan").value : "Produk/Layanan";
+    const jumlah = document.getElementById("jumlah-pesanan") ? document.getElementById("jumlah-pesanan").value : "1";
+    const tanggal = document.getElementById("tanggal-kebutuhan") ? document.getElementById("tanggal-kebutuhan").value : "-";
+
+    statusContainer.className = "form-status is-visible status-success";
+    statusContainer.innerHTML = `✅ <strong>Pemesanan Berhasil Dikirim!</strong><br>Terima kasih, <strong>${nama}</strong>. Permintaan Anda untuk <strong>${kategori}</strong> sejumlah <strong>${jumlah} unit/paket</strong> (rencana tanggal: <strong>${tanggal}</strong>) telah kami terima. Tim UMKM Pesisir akan segera mengonfirmasi melalui kontak Anda.`;
+
+    form.reset();
+    statusContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  if (btnReset) {
+    btnReset.addEventListener("click", () => {
+      statusContainer.className = "form-status";
+      statusContainer.innerHTML = "";
+    });
   }
 }
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      initApp();
+      initAccessibleForm();
+    });
+  } else {
+    initApp();
+    initAccessibleForm();
+  }
+}
+

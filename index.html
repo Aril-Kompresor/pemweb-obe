@@ -131,26 +131,130 @@
             </figure>
         </section>
 
-        <section id="kontak">
-            <h2>Kontak</h2>
-            <p>Jika Anda memiliki pertanyaan, silakan hubungi saya melalui formulir berikut:</p>
-            <form action="#" method="post">
-                <p>
-                    <label for="nama">Nama:</label><br>
-                    <input type="text" id="nama" name="nama" required placeholder="Masukkan nama Anda">
-                </p>
-                <p>
-                    <label for="email">Email:</label><br>
-                    <input type="email" id="email" name="email" required placeholder="nama@email.com">
-                </p>
-                <p>
-                    <label for="pesan">Pesan:</label><br>
-                    <textarea id="pesan" name="pesan" rows="4" cols="30" required
-                        placeholder="Tuliskan pesan Anda di sini..."></textarea>
-                </p>
-                <p>
-                    <button type="submit">Kirim</button>
-                </p>
+        <section id="kontak" aria-labelledby="judul-kontak">
+            <h2 id="judul-kontak">Kontak &amp; Pemesanan Layanan UMKM</h2>
+            <p>Silakan lengkapi formulir di bawah ini untuk pemesanan produk olahan laut (Keripik, Terasi, Abon), peminjaman alat pesisir, atau pengajuan kemitraan usaha:</p>
+
+            <form id="form-pemesanan" class="accessible-form" action="#" method="post">
+                <!-- Fieldset 1: Data Identitas & Kontak -->
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">1. Identitas &amp; Kontak Pemesan</legend>
+
+                    <div class="form-group">
+                        <label for="nama-pemesan">
+                            Nama Lengkap / Instansi <span class="required-mark" aria-hidden="true">*</span>
+                        </label>
+                        <input type="text" id="nama-pemesan" name="nama" required autocomplete="name"
+                            placeholder="Contoh: Muhammad Aril atau Kelompok Nelayan Berkah"
+                            aria-required="true" aria-describedby="nama-hint">
+                        <small id="nama-hint" class="form-hint">Isi nama lengkap pemesan individu atau perwakilan instansi/kelompok usaha.</small>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="email-pemesan">
+                                Alamat Email Aktif <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <input type="email" id="email-pemesan" name="email" required autocomplete="email"
+                                placeholder="nama@email.com"
+                                aria-required="true" aria-describedby="email-hint">
+                            <small id="email-hint" class="form-hint">Digunakan untuk konfirmasi invoice dan rincian pesanan.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telepon-pemesan">
+                                Nomor Telepon / WhatsApp <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <input type="tel" id="telepon-pemesan" name="telepon" required autocomplete="tel"
+                                placeholder="081234567890" pattern="[0-9+\s\-]{9,15}"
+                                aria-required="true" aria-describedby="telepon-hint">
+                            <small id="telepon-hint" class="form-hint">Nomor kontak aktif untuk verifikasi ketersediaan dan koordinasi.</small>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset 2: Kategori Layanan & Rincian Pesanan -->
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">2. Kategori Layanan &amp; Rincian Kebutuhan</legend>
+
+                    <div class="form-group">
+                        <label for="kategori-layanan">
+                            Kategori Produk / Layanan <span class="required-mark" aria-hidden="true">*</span>
+                        </label>
+                        <select id="kategori-layanan" name="kategori" required aria-required="true" aria-describedby="kategori-hint">
+                            <option value="">-- Silakan Pilih Kategori Layanan --</option>
+                            <optgroup label="Pemesanan Produk Komoditas (Order)">
+                                <option value="Keripik Ikan Tenggiri">Pemesanan Keripik Ikan Tenggiri (Rp 25.000 / bks)</option>
+                                <option value="Terasi Udang Rebon Asli">Pemesanan Terasi Udang Rebon Asli (Rp 18.500 / bks)</option>
+                                <option value="Abon Ikan Cakalang">Pemesanan Abon Ikan Cakalang (Rp 32.000 / bks)</option>
+                                <option value="Paket Kombo Hasil Laut">Paket Kombo Produk Olahan Pesisir</option>
+                            </optgroup>
+                            <optgroup label="Peminjaman Peralatan Nelayan (Peminjaman / Booking)">
+                                <option value="Peminjaman Coolbox">Peminjaman Coolbox Penyimpanan Ikan</option>
+                                <option value="Peminjaman Jaring Insang">Peminjaman Jaring Insang Nelayan</option>
+                                <option value="Sewa Mesin Vacuum Sealer">Penyewaan Mesin Vacuum Sealer Sentra UMKM</option>
+                            </optgroup>
+                            <optgroup label="Kemitraan & Pengaduan">
+                                <option value="Kemitraan Reseller/Distributor">Pengajuan Kerjasama Reseller / Distributor</option>
+                                <option value="Laporan / Pengaduan Kualitas">Laporan / Pengaduan Layanan &amp; Kualitas Produk</option>
+                            </optgroup>
+                        </select>
+                        <small id="kategori-hint" class="form-hint">Pilih jenis produk hasil laut atau fasilitas layanan yang dibutuhkan.</small>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="jumlah-pesanan">
+                                Jumlah / Kuantitas Unit <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <input type="number" id="jumlah-pesanan" name="jumlah" min="1" max="1000" required
+                                placeholder="Contoh: 10" aria-required="true" aria-describedby="jumlah-hint">
+                            <small id="jumlah-hint" class="form-hint">Jumlah bungkus produk, berat (kg), atau unit alat (min. 1).</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tanggal-kebutuhan">
+                                Tanggal Pengiriman / Pengambilan <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+                            <input type="date" id="tanggal-kebutuhan" name="tanggal" required
+                                aria-required="true" aria-describedby="tanggal-hint">
+                            <small id="tanggal-hint" class="form-hint">Tentukan estimasi tanggal penerimaan pesanan atau jadwal peminjaman.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deskripsi-kebutuhan">
+                            Deskripsi / Catatan Tambahan <span class="required-mark" aria-hidden="true">*</span>
+                        </label>
+                        <textarea id="deskripsi-kebutuhan" name="deskripsi" rows="4" required
+                            placeholder="Tuliskan alamat lengkap pengiriman, preferensi kemasan, atau catatan spesifikasi pesanan..."
+                            aria-required="true" aria-describedby="deskripsi-hint"></textarea>
+                        <small id="deskripsi-hint" class="form-hint">Berikan detail alamat pengantaran atau instruksi khusus secara jelas.</small>
+                    </div>
+                </fieldset>
+
+                <!-- Fieldset 3: Persetujuan & Konfirmasi -->
+                <fieldset class="form-fieldset">
+                    <legend class="form-legend">3. Konfirmasi &amp; Persetujuan Ketentuan</legend>
+
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="persetujuan-syarat" name="persetujuan" required
+                            aria-required="true" aria-describedby="persetujuan-hint">
+                        <label for="persetujuan-syarat">
+                            Saya menyetujui syarat &amp; ketentuan pemesanan komoditas laut / peminjaman alat UMKM Pesisir serta menjamin data yang diisikan adalah benar. <span class="required-mark" aria-hidden="true">*</span>
+                        </label>
+                    </div>
+                    <small id="persetujuan-hint" class="form-hint">Wajib dicentang sebagai bentuk persetujuan pemesanan dan verifikasi data.</small>
+                </fieldset>
+
+                <!-- Area Notifikasi Status Aksesibel (Live Region) -->
+                <div id="form-status" class="form-status" role="status" aria-live="polite" aria-atomic="true"></div>
+
+                <!-- Tombol Aksi Formulir -->
+                <div class="form-actions">
+                    <button type="submit" id="btn-kirim-pesanan" class="btn-primary">Kirim Pemesanan</button>
+                    <button type="reset" id="btn-reset-pesanan" class="btn-secondary">Reset Formulir</button>
+                </div>
             </form>
         </section>
 

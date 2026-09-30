@@ -134,9 +134,198 @@ dialog::backdrop {
 a:focus-visible,
 button:focus-visible,
 select:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: 3px solid #111;
   outline-offset: 3px;
+}
+
+/* ==========================================================
+   Accessible Form Styling (Pemesanan & Layanan UMKM Pesisir)
+   ========================================================== */
+.accessible-form {
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-fieldset {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #fafbfd;
+}
+
+.form-legend {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--brand);
+  padding: 0 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.required-mark {
+  color: #dc2626;
+  font-weight: bold;
+  margin-left: 0.2rem;
+}
+
+.form-hint {
+  display: block;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.accessible-form input[type="text"],
+.accessible-form input[type="email"],
+.accessible-form input[type="tel"],
+.accessible-form input[type="number"],
+.accessible-form input[type="date"],
+.accessible-form select,
+.accessible-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  min-height: 44px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accessible-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.accessible-form input:hover,
+.accessible-form select:hover,
+.accessible-form textarea:hover {
+  border-color: #94a3b8;
+}
+
+.accessible-form input:focus,
+.accessible-form select:focus,
+.accessible-form textarea:focus {
+  border-color: var(--brand);
+}
+
+.form-grid-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  margin-top: 0.2rem;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.form-checkbox label {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  background-color: var(--brand);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--brand);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.form-status {
+  display: none;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form-status.is-visible {
+  display: block;
+}
+
+.form-status.status-success {
+  background-color: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #166534;
+}
+
+.form-status.status-error {
+  background-color: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+}
+
+@media (min-width: 40rem) {
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -150,3 +339,4 @@ input:focus-visible {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
