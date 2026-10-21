@@ -35,7 +35,11 @@ if ($requestMethod === 'GET') {
     exit;
 }
 
+require_once __DIR__ . '/middleware.php';
+
 if ($requestMethod === 'POST') {
+    requireJsonContentTypeMiddleware();
+
     $rawInput = file_get_contents('php://input');
 
     if (empty(trim($rawInput))) {
