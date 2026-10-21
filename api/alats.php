@@ -70,6 +70,8 @@ if ($requestMethod === 'POST') {
         $errors['nama'] = 'Field nama wajib diisi.';
     } elseif (mb_strlen(trim((string)$input['nama'])) < 3) {
         $errors['nama'] = 'Nama alat minimal harus 3 karakter.';
+    } elseif (mb_strlen(trim((string)$input['nama'])) > 100) {
+        $errors['nama'] = 'Nama alat maksimal 100 karakter.';
     }
 
     if (!isset($input['jenis']) || trim((string)$input['jenis']) === '') {
