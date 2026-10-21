@@ -19,6 +19,7 @@
         <nav aria-label="Navigasi Utama">
             <a href="index.html">Home</a>
             <a href="#produk">Produk</a>
+            <a href="#seafood">Olahan Laut</a>
             <a href="#alat">Alat</a>
             <a href="#informasi">Informasi</a>
             <a href="#kontak">Kontak</a>
@@ -76,6 +77,21 @@
                     <p>Abon ikan cakalang gurih dengan rempah tradisional pilihan khas pesisir.</p>
                     <p>Harga: Rp 32.000</p>
                 </article>
+            </div>
+        </section>
+
+        <section id="seafood">
+            <h2>Katalog Olahan Laut</h2>
+            <p>Data olahan dan komoditas hasil laut yang ditarik secara asinkron dari API:</p>
+            <div class="filter-controls">
+                <div>
+                    <label for="search-seafood">Cari olahan laut:</label><br>
+                    <input id="search-seafood" type="search" placeholder="Ketik nama hidangan...">
+                </div>
+            </div>
+            <div id="seafood-status" role="status" aria-live="polite"></div>
+            <div id="daftar-seafood" class="cards">
+                <!-- Kartu olahan laut akan dimuat secara dinamis oleh JavaScript -->
             </div>
         </section>
 

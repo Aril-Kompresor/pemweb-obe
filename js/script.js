@@ -329,15 +329,177 @@ function initAccessibleForm() {
   }
 }
 
+// Data cadangan jika offline / koneksi internet terputus
+const fallbackMeals = [
+  {
+    idMeal: "53483",
+    strMeal: "Acaraje black-eyed pea fritters with shrimp filling (Offline Fallback)",
+    strMealThumb: "images/meal-53483.jpg"
+  },
+  {
+    idMeal: "53495",
+    strMeal: "Amok Trey – Cambodian Fish Curry (Offline Fallback)",
+    strMealThumb: "images/meal-53495.jpg"
+  },
+  {
+    idMeal: "52959",
+    strMeal: "Baked salmon with fennel & tomatoes (Offline Fallback)",
+    strMealThumb: "images/meal-52959.jpg"
+  },
+  {
+    idMeal: "53147",
+    strMeal: "Arroz con gambas y calamar (Offline Fallback)",
+    strMealThumb: "images/meal-53147.jpg"
+  }
+];
+
+/**
+ * Mengambil data olahan laut menggunakan async/await dari endpoint Seafood.
+ * Menyediakan fallback jika offline atau jaringan terputus.
+ * @returns {Promise<Array>}
+ */
+let dataSeafood = [];
+
+function renderMeals(items, isSearching = false) {
+  const container = document.getElementById("daftar-seafood");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!items || items.length === 0) {
+    container.innerHTML = `
+      <div class="empty-message">
+        <p>🔍 Maaf, olahan laut tidak ditemukan. Coba gunakan kata kunci lain.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const displayItems = isSearching ? items : items.slice(0, 6);
+
+  displayItems.forEach(meal => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${meal.strMeal}</h3>
+      <figure>
+        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" width="100%" loading="lazy">
+        <figcaption>Kode Menu: #${meal.idMeal}</figcaption>
+      </figure>
+      <p>Olahan komoditas laut pesisir pilihan.</p>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function initPencarianSeafood() {
+  const searchInput = document.getElementById("search-seafood");
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", (event) => {
+    const keyword = event.target.value.toLowerCase().trim();
+    if (!keyword) {
+      renderMeals(dataSeafood, false);
+      return;
+    }
+
+    // Filter array lokal di memori klien TANPA memanggil fetch/API di setiap ketikan
+    const hasil = dataSeafood.filter(meal =>
+      meal.strMeal.toLowerCase().includes(keyword)
+    );
+    renderMeals(hasil, true);
+  });
+}
+
+function tampilkanStatusError(pesan) {
+  let statusContainer = document.getElementById("seafood-status");
+  if (!statusContainer) {
+    const parent = document.getElementById("seafood");
+    const containerCards = document.getElementById("daftar-seafood");
+    if (parent && containerCards) {
+      statusContainer = document.createElement("div");
+      statusContainer.id = "seafood-status";
+      statusContainer.setAttribute("role", "status");
+      statusContainer.setAttribute("aria-live", "polite");
+      parent.insertBefore(statusContainer, containerCards);
+    }
+  }
+  if (!statusContainer) return;
+
+  statusContainer.innerHTML = `
+    <div class="status-error-box">
+      <p>⚠️ <strong>Gagal memuat data API:</strong> ${pesan} Menampilkan data cadangan.</p>
+      <button type="button" id="btn-retry-seafood" class="btn-retry">🔄 Coba Lagi</button>
+    </div>
+  `;
+
+  const btnRetry = document.getElementById("btn-retry-seafood");
+  if (btnRetry) {
+    btnRetry.addEventListener("click", () => {
+      btnRetry.disabled = true;
+      btnRetry.textContent = "Memuat ulang...";
+      loadUsers();
+    });
+  }
+}
+
+function bersihkanStatusError() {
+  const statusContainer = document.getElementById("seafood-status");
+  if (statusContainer) {
+    statusContainer.innerHTML = "";
+  }
+}
+
+async function loadUsers() {
+  const endpoint = "https://www.themealdb.com/api/json/v1/1/filter.php?c=Seafood";
+
+  // Cek jika browser sedang dalam mode offline
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    console.warn("⚠️ Mode offline terdeteksi. Memuat data cadangan (fallback).");
+    tampilkanStatusError("Koneksi internet tidak tersedia (Offline).");
+    dataSeafood = fallbackMeals;
+    renderMeals(dataSeafood);
+    return dataSeafood;
+  }
+
+  try {
+    const response = await fetch(endpoint);
+    console.log("Response: " + response.ok);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const items = data.meals || data;
+    console.log("Data berhasil ditarik dari endpoint:", items);
+    bersihkanStatusError();
+    dataSeafood = items;
+    renderMeals(dataSeafood);
+    return items;
+  } catch (error) {
+    console.warn("Gagal terhubung ke endpoint internet:", error.message);
+    console.info("Mengalihkan ke data cadangan (fallback)...");
+    tampilkanStatusError(error.message);
+    dataSeafood = fallbackMeals;
+    renderMeals(dataSeafood);
+    return fallbackMeals;
+  }
+}
+
 if (typeof document !== "undefined") {
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       initApp();
       initAccessibleForm();
+      initPencarianSeafood();
+      loadUsers();
     });
   } else {
     initApp();
     initAccessibleForm();
+    initPencarianSeafood();
+    loadUsers();
   }
 }
+
 
