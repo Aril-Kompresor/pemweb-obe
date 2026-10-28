@@ -1,0 +1,401 @@
+:root {
+  --space-1: .5rem;
+  --space-2: 1rem;
+  --brand: #4f46e5;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --radius: .75rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.container {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: var(--radius);
+}
+
+.card figure {
+  margin: 0 0 0.75rem 0;
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+}
+
+.card figcaption {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-top: 0.35rem;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+  margin-bottom: var(--space-2);
+}
+
+select,
+input[type="number"],
+input[type="search"] {
+  padding: var(--space-1) var(--space-2);
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  margin-top: var(--space-1);
+}
+
+.empty-message {
+  grid-column: 1 / -1;
+  padding: 1.5rem var(--space-2);
+  background-color: #f9fafb;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius);
+  text-align: center;
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+.status-error-box {
+  background-color: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.status-error-box p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.btn-retry {
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-retry:hover {
+  background-color: #b91c1c;
+}
+
+.btn-retry:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+button {
+  padding: var(--space-1) var(--space-2);
+  font-size: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  background-color: var(--brand);
+  color: #fff;
+  cursor: pointer;
+}
+
+button#btn-reset-id {
+  background-color: #f3f4f6;
+  color: var(--text);
+}
+
+.btn-detail {
+  margin-top: var(--space-1);
+  background-color: #0284c7;
+  color: #fff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.btn-detail:hover {
+  background-color: #0369a1;
+}
+
+dialog.modal-dialog {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  max-width: 32rem;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+}
+
+dialog::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal-card h3 {
+  margin-top: 0;
+  color: var(--brand);
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+#btn-tutup-detail {
+  margin-top: 1rem;
+  background-color: #64748b;
+  width: 100%;
+}
+
+#btn-tutup-detail:hover {
+  background-color: #475569;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 3px;
+}
+
+/* ==========================================================
+   Accessible Form Styling (Pemesanan & Layanan UMKM Pesisir)
+   ========================================================== */
+.accessible-form {
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-fieldset {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #fafbfd;
+}
+
+.form-legend {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--brand);
+  padding: 0 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.required-mark {
+  color: #dc2626;
+  font-weight: bold;
+  margin-left: 0.2rem;
+}
+
+.form-hint {
+  display: block;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.accessible-form input[type="text"],
+.accessible-form input[type="email"],
+.accessible-form input[type="tel"],
+.accessible-form input[type="number"],
+.accessible-form input[type="date"],
+.accessible-form select,
+.accessible-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  min-height: 44px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.accessible-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.accessible-form input:hover,
+.accessible-form select:hover,
+.accessible-form textarea:hover {
+  border-color: #94a3b8;
+}
+
+.accessible-form input:focus,
+.accessible-form select:focus,
+.accessible-form textarea:focus {
+  border-color: var(--brand);
+}
+
+.form-grid-2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  min-width: 1.25rem;
+  margin-top: 0.2rem;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.form-checkbox label {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  background-color: var(--brand);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--brand);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
+.form-status {
+  display: none;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form-status.is-visible {
+  display: block;
+}
+
+.form-status.status-success {
+  background-color: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #166534;
+}
+
+.form-status.status-error {
+  background-color: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #991b1b;
+}
+
+@media (min-width: 40rem) {
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .hero {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 2rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+

@@ -1,0 +1,12 @@
+{
+    "name": "aril/pemweb-obe",
+    "description": "Sistem Informasi UMKM Pesisir - Pemweb OBE",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Muhammad Aril Saputra",
+            "email": "BloodLetters45@gmail.com"
+        }
+    ],
+    "require": {}
+}
