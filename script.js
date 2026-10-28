@@ -295,30 +295,70 @@ function initAccessibleForm() {
   const form = document.getElementById("form-pemesanan");
   const statusContainer = document.getElementById("form-status");
   const btnReset = document.getElementById("btn-reset-pesanan");
+  const btnKirim = document.getElementById("btn-kirim-pesanan");
 
   if (!form || !statusContainer) return;
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!form.checkValidity()) {
       statusContainer.className = "form-status is-visible status-error";
-      statusContainer.innerHTML = "⚠️ <strong>Mohon periksa kembali:</strong> Harap lengkapi semua kolom bertanda bintang (*) dan setujui syarat &amp; ketentuan sebelum mengirim formulir.";
+      statusContainer.innerHTML = "⚠️ <strong>Mohon periksa kembali:</strong> Harap lengkapi semua kolom bertanda bintang (*) sebelum mengirim formulir.";
       const firstInvalid = form.querySelector(":invalid");
       if (firstInvalid) firstInvalid.focus();
       return;
     }
 
-    const nama = document.getElementById("nama-pemesan") ? document.getElementById("nama-pemesan").value.trim() : "Pemesan";
-    const kategori = document.getElementById("kategori-layanan") ? document.getElementById("kategori-layanan").value : "Produk/Layanan";
-    const jumlah = document.getElementById("jumlah-pesanan") ? document.getElementById("jumlah-pesanan").value : "1";
-    const tanggal = document.getElementById("tanggal-kebutuhan") ? document.getElementById("tanggal-kebutuhan").value : "-";
+    const nama = document.getElementById("nama-pemesan") ? document.getElementById("nama-pemesan").value.trim() : "";
+    const kontak = document.getElementById("kontak-pemesan") ? document.getElementById("kontak-pemesan").value.trim() : "";
+    const kategori = document.getElementById("kategori-layanan") ? document.getElementById("kategori-layanan").value : "";
+    const jumlah = document.getElementById("jumlah-pesanan") ? parseInt(document.getElementById("jumlah-pesanan").value, 10) : 1;
+    const catatan = document.getElementById("catatan-pesanan") ? document.getElementById("catatan-pesanan").value.trim() : "";
 
-    statusContainer.className = "form-status is-visible status-success";
-    statusContainer.innerHTML = `✅ <strong>Pemesanan Berhasil Dikirim!</strong><br>Terima kasih, <strong>${nama}</strong>. Permintaan Anda untuk <strong>${kategori}</strong> sejumlah <strong>${jumlah} unit/paket</strong> (rencana tanggal: <strong>${tanggal}</strong>) telah kami terima. Tim UMKM Pesisir akan segera mengonfirmasi melalui kontak Anda.`;
+    const payload = {
+      nama: nama,
+      kontak: kontak,
+      kategori: kategori,
+      jumlah: jumlah,
+      catatan: catatan
+    };
 
-    form.reset();
-    statusContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (btnKirim) {
+      btnKirim.disabled = true;
+      btnKirim.textContent = "Menyimpan ke Database...";
+    }
+
+    try {
+      const response = await fetch("api/pemesanan.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        statusContainer.className = "form-status is-visible status-success";
+        statusContainer.innerHTML = `✅ <strong>Pemesanan Berhasil Disimpan ke Basis Data!</strong><br>Terima kasih, <strong>${result.data.nama}</strong>. Permintaan untuk <strong>${result.data.kategori}</strong> (${result.data.jumlah} unit/paket) telah tercatat di sistem dengan <strong>ID #${result.data.id}</strong>. Tim UMKM Pesisir akan segera menghubungi kontak <strong>${result.data.kontak}</strong>.`;
+        form.reset();
+      } else {
+        const errorMsg = result.message || (result.errors ? Object.values(result.errors).join("<br>") : "Terjadi kesalahan saat memproses data.");
+        statusContainer.className = "form-status is-visible status-error";
+        statusContainer.innerHTML = `⚠️ <strong>Pemesanan Gagal Disimpan:</strong> ${errorMsg}`;
+      }
+    } catch (err) {
+      statusContainer.className = "form-status is-visible status-error";
+      statusContainer.innerHTML = `⚠️ <strong>Koneksi Gagal:</strong> Tidak dapat terhubung ke server/database. (${err.message})`;
+    } finally {
+      if (btnKirim) {
+        btnKirim.disabled = false;
+        btnKirim.textContent = "Kirim Pemesanan";
+      }
+      statusContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   });
 
   if (btnReset) {

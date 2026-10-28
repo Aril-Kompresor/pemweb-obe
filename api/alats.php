@@ -2,6 +2,9 @@
 
 date_default_timezone_set('Asia/Makassar');
 
+require_once dirname(__DIR__) . '/config/database.php';
+require_once __DIR__ . '/middleware.php';
+
 $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if (php_sapi_name() !== 'cli') {
@@ -16,27 +19,46 @@ if ($requestMethod === 'OPTIONS') {
     exit;
 }
 
-$daftarAlat = [
-    ['id' => 1, 'nama' => 'Jaring Insang', 'jenis' => 'Tangkap', 'jumlah' => 10, 'lokasi' => 'Gudang A'],
-    ['id' => 2, 'nama' => 'Coolbox', 'jenis' => 'Penyimpanan', 'jumlah' => 5, 'lokasi' => 'Dermaga 1'],
-    ['id' => 3, 'nama' => 'GPS Tracker', 'jenis' => 'Navigasi', 'jumlah' => 3, 'lokasi' => 'Kapal 01'],
-    ['id' => 4, 'nama' => 'Timbangan Digital', 'jenis' => 'Pengolahan', 'jumlah' => 7, 'lokasi' => 'Gudang A'],
-    ['id' => 5, 'nama' => 'Mesin Vacuum Sealer', 'jenis' => 'Pengemasan', 'jumlah' => 2, 'lokasi' => 'Sentra UMKM']
-];
-
+// -------------------------------------------------------------
+// GET: Mengambil data alat dengan filter kategori (Prepared Statement)
+// Sesuai standar Modul 10 Praktikum Pemrograman Web OBE
+// -------------------------------------------------------------
 if ($requestMethod === 'GET') {
-    http_response_code(200);
-    echo json_encode([
-        'status' => 'success',
-        'code' => 200,
-        'total' => count($daftarAlat),
-        'data' => $daftarAlat
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
+    try {
+        $pdo = db();
+        $kategori = $_GET['kategori'] ?? $_GET['jenis'] ?? null;
+
+        if ($kategori !== null && trim($kategori) !== '') {
+            $stmt = $pdo->prepare('SELECT id, nama, kategori, kategori AS jenis, jumlah, kondisi, lokasi, created_at FROM alat WHERE kategori = :kategori ORDER BY id ASC');
+            $stmt->execute(['kategori' => trim($kategori)]);
+        } else {
+            $stmt = $pdo->query('SELECT id, nama, kategori, kategori AS jenis, jumlah, kondisi, lokasi, created_at FROM alat ORDER BY id ASC');
+        }
+
+        $data = $stmt->fetchAll();
+
+        http_response_code(200);
+        echo json_encode([
+            'status' => 'success',
+            'code' => 200,
+            'total' => count($data),
+            'data' => $data
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'code' => 500,
+            'message' => 'Gagal mengambil data alat dari basis data: ' . $e->getMessage()
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
-require_once __DIR__ . '/middleware.php';
-
+// -------------------------------------------------------------
+// POST: Menambahkan data alat baru ke database (Prepared Statement)
+// -------------------------------------------------------------
 if ($requestMethod === 'POST') {
     requireJsonContentTypeMiddleware();
 
@@ -74,8 +96,9 @@ if ($requestMethod === 'POST') {
         $errors['nama'] = 'Nama alat maksimal 100 karakter.';
     }
 
-    if (!isset($input['jenis']) || trim((string)$input['jenis']) === '') {
-        $errors['jenis'] = 'Field jenis wajib diisi.';
+    $kategori = $input['kategori'] ?? $input['jenis'] ?? '';
+    if (trim((string)$kategori) === '') {
+        $errors['jenis'] = 'Field jenis / kategori wajib diisi.';
     }
 
     if (!isset($input['jumlah']) || $input['jumlah'] === '') {
@@ -101,22 +124,49 @@ if ($requestMethod === 'POST') {
         exit;
     }
 
-    $newItem = [
-        'id' => count($daftarAlat) + 1,
-        'nama' => trim((string)$input['nama']),
-        'jenis' => trim((string)$input['jenis']),
-        'jumlah' => (int)$input['jumlah'],
-        'lokasi' => trim((string)$input['lokasi'])
-    ];
+    try {
+        $pdo = db();
+        $insertStmt = $pdo->prepare(
+            'INSERT INTO alat (nama, kategori, jumlah, lokasi, kondisi) 
+             VALUES (:nama, :kategori, :jumlah, :lokasi, :kondisi)'
+        );
 
-    http_response_code(201);
-    echo json_encode([
-        'status' => 'success',
-        'code' => 201,
-        'message' => 'Data alat berhasil ditambahkan.',
-        'data' => $newItem
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
+        $kondisi = $input['kondisi'] ?? 'Baik';
+        $insertStmt->execute([
+            'nama'     => trim((string)$input['nama']),
+            'kategori' => trim((string)$kategori),
+            'jumlah'   => (int)$input['jumlah'],
+            'lokasi'   => trim((string)$input['lokasi']),
+            'kondisi'  => in_array($kondisi, ['Baik', 'Perlu Cek', 'Rusak']) ? $kondisi : 'Baik'
+        ]);
+
+        $newId = $pdo->lastInsertId();
+
+        http_response_code(201);
+        echo json_encode([
+            'status' => 'success',
+            'code' => 201,
+            'message' => 'Data alat berhasil ditambahkan ke basis data.',
+            'data' => [
+                'id'       => (int)$newId,
+                'nama'     => trim((string)$input['nama']),
+                'kategori' => trim((string)$kategori),
+                'jenis'    => trim((string)$kategori),
+                'jumlah'   => (int)$input['jumlah'],
+                'lokasi'   => trim((string)$input['lokasi']),
+                'kondisi'  => $kondisi
+            ]
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'code' => 500,
+            'message' => 'Gagal menyimpan ke basis data: ' . $e->getMessage()
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 }
 
 http_response_code(405);

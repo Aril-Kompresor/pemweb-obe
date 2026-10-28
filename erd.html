@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Relationship Diagram (ERD) - Pemweb OBE</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .erd-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: center;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+            max-width: 1080px;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="erd-container">
+        <svg viewBox="0 0 1080 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Marker titik & panah -->
+                <marker id="circle-end" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+                    <circle cx="5" cy="5" r="4" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+                </marker>
+            </defs>
+
+            <!-- ========================================== -->
+            <!-- GARIS RELASI (KARDINALITAS)               -->
+            <!-- ========================================== -->
+
+            <!-- Relasi 1: users (1) ke pemesanan (N) -->
+            <!-- users.id (X: 300, Y: 100) -> pemesanan.user_id (X: 390, Y: 105) -->
+            <path d="M 300 100 L 345 100 L 345 105 L 390 105" fill="none" stroke="#0f172a" stroke-width="2.5" />
+            
+            <!-- Simbol Kardinalitas Users (1) -->
+            <line x1="312" y1="92" x2="312" y2="108" stroke="#0f172a" stroke-width="2.5" />
+            <line x1="318" y1="92" x2="318" y2="108" stroke="#0f172a" stroke-width="2.5" />
+            <text x="315" y="84" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">1</text>
+
+            <!-- Simbol Kardinalitas Pemesanan (N / Crow's Foot) -->
+            <path d="M 374 95 L 390 105 L 374 115" fill="none" stroke="#0f172a" stroke-width="2" />
+            <line x1="374" y1="105" x2="390" y2="105" stroke="#0f172a" stroke-width="2" />
+            <circle cx="366" cy="105" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="375" y="88" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">N</text>
+
+            <!-- Relasi 2: alat (1) ke pemesanan (N) -->
+            <!-- alat.id (X: 770, Y: 100) -> pemesanan.alat_id (X: 690, Y: 135) -->
+            <path d="M 770 100 L 730 100 L 730 135 L 690 135" fill="none" stroke="#0f172a" stroke-width="2.5" />
+
+            <!-- Simbol Kardinalitas Alat (1) -->
+            <line x1="758" y1="92" x2="758" y2="108" stroke="#0f172a" stroke-width="2.5" />
+            <line x1="752" y1="92" x2="752" y2="108" stroke="#0f172a" stroke-width="2.5" />
+            <text x="755" y="84" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">1</text>
+
+            <!-- Simbol Kardinalitas Pemesanan (N / Crow's Foot) -->
+            <path d="M 706 125 L 690 135 L 706 145" fill="none" stroke="#0f172a" stroke-width="2" />
+            <line x1="706" y1="135" x2="690" y2="135" stroke="#0f172a" stroke-width="2" />
+            <circle cx="714" cy="135" r="4" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="705" y="118" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">N</text>
+
+
+            <!-- ========================================== -->
+            <!-- ENTITAS 1: users                           -->
+            <!-- ========================================== -->
+            <g transform="translate(30, 40)">
+                <!-- Card Container -->
+                <rect x="0" y="0" width="270" height="235" rx="6" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+                <!-- Header -->
+                <path d="M 0 6 A 6 6 0 0 1 6 0 L 264 0 A 6 6 0 0 1 270 6 L 270 38 L 0 38 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+                <text x="135" y="24" font-size="15" font-weight="bold" fill="#0f172a" text-anchor="middle">users</text>
+                
+                <!-- Rows -->
+                <!-- id (PK) -->
+                <rect x="10" y="47" width="28" height="18" rx="3" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+                <text x="24" y="60" font-size="10" font-weight="bold" fill="#1d4ed8" text-anchor="middle">PK</text>
+                <text x="46" y="61" font-size="13" font-weight="600" fill="#0f172a">id</text>
+                <text x="255" y="61" font-size="12" fill="#64748b" text-anchor="end">BIGINT</text>
+                <line x1="0" y1="72" x2="270" y2="72" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- nama -->
+                <text x="46" y="93" font-size="13" fill="#334155">nama</text>
+                <text x="255" y="93" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(100)</text>
+                <line x1="0" y1="104" x2="270" y2="104" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- email -->
+                <text x="46" y="125" font-size="13" fill="#334155">email</text>
+                <text x="255" y="125" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(190)</text>
+                <line x1="0" y1="136" x2="270" y2="136" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- password_hash -->
+                <text x="46" y="157" font-size="13" fill="#334155">password_hash</text>
+                <text x="255" y="157" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(255)</text>
+                <line x1="0" y1="168" x2="270" y2="168" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- role -->
+                <text x="46" y="189" font-size="13" fill="#334155">role</text>
+                <text x="255" y="189" font-size="12" fill="#64748b" text-anchor="end">ENUM</text>
+                <line x1="0" y1="200" x2="270" y2="200" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- created_at -->
+                <text x="46" y="221" font-size="13" fill="#334155">created_at</text>
+                <text x="255" y="221" font-size="12" fill="#64748b" text-anchor="end">TIMESTAMP</text>
+            </g>
+
+
+            <!-- ========================================== -->
+            <!-- ENTITAS 2: pemesanan                       -->
+            <!-- ========================================== -->
+            <g transform="translate(390, 15)">
+                <!-- Card Container -->
+                <rect x="0" y="0" width="300" height="425" rx="6" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+                <!-- Header -->
+                <path d="M 0 6 A 6 6 0 0 1 6 0 L 294 0 A 6 6 0 0 1 300 6 L 300 38 L 0 38 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+                <text x="150" y="24" font-size="15" font-weight="bold" fill="#0f172a" text-anchor="middle">pemesanan</text>
+
+                <!-- id (PK) -->
+                <rect x="10" y="47" width="28" height="18" rx="3" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+                <text x="24" y="60" font-size="10" font-weight="bold" fill="#1d4ed8" text-anchor="middle">PK</text>
+                <text x="46" y="61" font-size="13" font-weight="600" fill="#0f172a">id</text>
+                <text x="285" y="61" font-size="12" fill="#64748b" text-anchor="end">BIGINT</text>
+                <line x1="0" y1="72" x2="300" y2="72" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- user_id (FK) -->
+                <rect x="10" y="79" width="28" height="18" rx="3" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1"/>
+                <text x="24" y="92" font-size="10" font-weight="bold" fill="#6d28d9" text-anchor="middle">FK</text>
+                <text x="46" y="93" font-size="13" font-weight="600" fill="#0f172a">user_id</text>
+                <text x="285" y="93" font-size="12" fill="#64748b" text-anchor="end">BIGINT (NULL)</text>
+                <line x1="0" y1="104" x2="300" y2="104" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- alat_id (FK) -->
+                <rect x="10" y="111" width="28" height="18" rx="3" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1"/>
+                <text x="24" y="124" font-size="10" font-weight="bold" fill="#6d28d9" text-anchor="middle">FK</text>
+                <text x="46" y="125" font-size="13" font-weight="600" fill="#0f172a">alat_id</text>
+                <text x="285" y="125" font-size="12" fill="#64748b" text-anchor="end">BIGINT (NULL)</text>
+                <line x1="0" y1="136" x2="300" y2="136" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- nama -->
+                <text x="46" y="157" font-size="13" fill="#334155">nama</text>
+                <text x="285" y="157" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(100)</text>
+                <line x1="0" y1="168" x2="300" y2="168" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- kontak -->
+                <text x="46" y="189" font-size="13" fill="#334155">kontak</text>
+                <text x="285" y="189" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(100)</text>
+                <line x1="0" y1="200" x2="300" y2="200" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- kategori -->
+                <text x="46" y="221" font-size="13" fill="#334155">kategori</text>
+                <text x="285" y="221" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(100)</text>
+                <line x1="0" y1="232" x2="300" y2="232" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- jumlah -->
+                <text x="46" y="253" font-size="13" fill="#334155">jumlah</text>
+                <text x="285" y="253" font-size="12" fill="#64748b" text-anchor="end">INT</text>
+                <line x1="0" y1="264" x2="300" y2="264" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- catatan -->
+                <text x="46" y="285" font-size="13" fill="#334155">catatan</text>
+                <text x="285" y="285" font-size="12" fill="#64748b" text-anchor="end">TEXT</text>
+                <line x1="0" y1="296" x2="300" y2="296" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- status -->
+                <text x="46" y="317" font-size="13" fill="#334155">status</text>
+                <text x="285" y="317" font-size="12" fill="#64748b" text-anchor="end">ENUM</text>
+                <line x1="0" y1="328" x2="300" y2="328" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- created_at -->
+                <text x="46" y="349" font-size="13" fill="#334155">created_at</text>
+                <text x="285" y="349" font-size="12" fill="#64748b" text-anchor="end">TIMESTAMP</text>
+                <line x1="0" y1="360" x2="300" y2="360" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- updated_at -->
+                <text x="46" y="381" font-size="13" fill="#334155">updated_at</text>
+                <text x="285" y="381" font-size="12" fill="#64748b" text-anchor="end">TIMESTAMP</text>
+            </g>
+
+
+            <!-- ========================================== -->
+            <!-- ENTITAS 3: alat                            -->
+            <!-- ========================================== -->
+            <g transform="translate(770, 40)">
+                <!-- Card Container -->
+                <rect x="0" y="0" width="280" height="265" rx="6" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+                <!-- Header -->
+                <path d="M 0 6 A 6 6 0 0 1 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 38 L 0 38 Z" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+                <text x="140" y="24" font-size="15" font-weight="bold" fill="#0f172a" text-anchor="middle">alat</text>
+
+                <!-- id (PK) -->
+                <rect x="10" y="47" width="28" height="18" rx="3" fill="#eff6ff" stroke="#3b82f6" stroke-width="1"/>
+                <text x="24" y="60" font-size="10" font-weight="bold" fill="#1d4ed8" text-anchor="middle">PK</text>
+                <text x="46" y="61" font-size="13" font-weight="600" fill="#0f172a">id</text>
+                <text x="265" y="61" font-size="12" fill="#64748b" text-anchor="end">BIGINT</text>
+                <line x1="0" y1="72" x2="280" y2="72" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- nama -->
+                <text x="46" y="93" font-size="13" fill="#334155">nama</text>
+                <text x="265" y="93" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(120)</text>
+                <line x1="0" y1="104" x2="280" y2="104" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- kategori -->
+                <text x="46" y="125" font-size="13" fill="#334155">kategori</text>
+                <text x="265" y="125" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(80)</text>
+                <line x1="0" y1="136" x2="280" y2="136" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- jumlah -->
+                <text x="46" y="157" font-size="13" fill="#334155">jumlah</text>
+                <text x="265" y="157" font-size="12" fill="#64748b" text-anchor="end">INT</text>
+                <line x1="0" y1="168" x2="280" y2="168" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- kondisi -->
+                <text x="46" y="189" font-size="13" fill="#334155">kondisi</text>
+                <text x="265" y="189" font-size="12" fill="#64748b" text-anchor="end">ENUM</text>
+                <line x1="0" y1="200" x2="280" y2="200" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- lokasi -->
+                <text x="46" y="221" font-size="13" fill="#334155">lokasi</text>
+                <text x="265" y="221" font-size="12" fill="#64748b" text-anchor="end">VARCHAR(100)</text>
+                <line x1="0" y1="232" x2="280" y2="232" stroke="#e2e8f0" stroke-width="1"/>
+
+                <!-- created_at -->
+                <text x="46" y="253" font-size="13" fill="#334155">created_at</text>
+                <text x="265" y="253" font-size="12" fill="#64748b" text-anchor="end">TIMESTAMP</text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
