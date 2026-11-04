@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Manajemen Operasional - UMKM Pesisir</title>
+  <!-- Menghubungkan CSS Utama dan CSS Khusus Dashboard -->
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+  <!-- Header Dashboard Semantik & Navigasi -->
+  <header class="dashboard-header">
+    <div class="container header-inner">
+      <div class="dashboard-brand">
+        <h1>📊 Dashboard Manajemen UMKM Pesisir</h1>
+        <p>Integrasi Basis Data Operasional, Restful CRUD &amp; Pemantauan Layanan Pesisir</p>
+      </div>
+      <nav class="dashboard-nav" aria-label="Navigasi Dashboard">
+        <a href="../index.html">🏠 Kembali ke Beranda</a>
+        <a href="../erd.html" target="_blank" rel="noopener">📐 Diagram ERD</a>
+        <a href="../api/health.php" target="_blank" rel="noopener">🩺 Status API</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Area Notifikasi Status Live Region (WCAG 2.1 Aksesibel) -->
+    <div id="global-alert" class="alert-banner" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Ringkasan Metrik / KPI Cards -->
+    <section class="kpi-grid" aria-label="Ringkasan Metrik Operasional">
+      <div class="kpi-card kpi-alat">
+        <h2>Ragam Peralatan</h2>
+        <p class="kpi-number" id="kpi-total-alat">0</p>
+        <p class="kpi-subtext">Jenis alat terdaftar di database</p>
+      </div>
+      <div class="kpi-card kpi-unit">
+        <h2>Total Stok Unit</h2>
+        <p class="kpi-number" id="kpi-total-unit">0 Unit</p>
+        <p class="kpi-subtext">Akumulasi seluruh sarana nelayan</p>
+      </div>
+      <div class="kpi-card kpi-pesan">
+        <h2>Total Pemesanan</h2>
+        <p class="kpi-number" id="kpi-total-pesanan">0</p>
+        <p class="kpi-subtext">Pemesanan komoditas &amp; sewa alat</p>
+      </div>
+      <div class="kpi-card kpi-menunggu">
+        <h2>Pesanan Menunggu</h2>
+        <p class="kpi-number" id="kpi-pesanan-menunggu">0</p>
+        <p class="kpi-subtext">Memerlukan tindak lanjut petugas</p>
+      </div>
+    </section>
+
+    <!-- Navigasi Tab Entitas -->
+    <div class="tabs-container" role="tablist" aria-label="Pilihan Manajemen Data">
+      <button type="button" class="tab-btn active" id="tab-btn-alat" role="tab" aria-selected="true" aria-controls="tab-content-alat">
+        🛠️ Inventaris Peralatan Pesisir
+      </button>
+      <button type="button" class="tab-btn" id="tab-btn-pemesanan" role="tab" aria-selected="false" aria-controls="tab-content-pemesanan">
+        📦 Pemesanan &amp; Reservasi Layanan
+      </button>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: INVENTARIS PERALATAN (FULL CRUD)                           -->
+    <!-- ================================================================= -->
+    <section id="tab-content-alat" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-alat">
+      <!-- Toolbar Pencarian & Aksi -->
+      <div class="toolbar-card">
+        <div class="filters-group">
+          <div>
+            <label for="search-alat" class="sr-only" style="display:none;">Cari alat</label>
+            <input type="search" id="search-alat" placeholder="🔍 Cari nama, kategori, lokasi...">
+          </div>
+          <div>
+            <select id="filter-kategori-alat" aria-label="Filter berdasarkan kategori">
+              <option value="Semua">Semua Kategori</option>
+              <option value="Tangkap">Tangkap</option>
+              <option value="Penyimpanan">Penyimpanan</option>
+              <option value="Navigasi">Navigasi</option>
+              <option value="Pengolahan">Pengolahan</option>
+              <option value="Pengemasan">Pengemasan</option>
+              <option value="Keselamatan">Keselamatan</option>
+            </select>
+          </div>
+          <div>
+            <select id="filter-kondisi-alat" aria-label="Filter berdasarkan kondisi">
+              <option value="Semua">Semua Kondisi</option>
+              <option value="Baik">Kondisi: Baik</option>
+              <option value="Perlu Cek">Kondisi: Perlu Cek</option>
+              <option value="Rusak">Kondisi: Rusak</option>
+            </select>
+          </div>
+          <button type="button" id="btn-refresh-alat" class="btn-secondary-action" title="Muat ulang data dari database">
+            🔄 Refresh
+          </button>
+        </div>
+
+        <div>
+          <button type="button" id="btn-tambah-alat" class="btn-primary-action">
+            ➕ Tambah Alat Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabel Data Inventaris Alat -->
+      <div class="table-responsive">
+        <table class="data-table" aria-label="Daftar Inventaris Peralatan Pesisir">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 70px;">ID</th>
+              <th scope="col">Nama Alat</th>
+              <th scope="col">Kategori</th>
+              <th scope="col">Jumlah</th>
+              <th scope="col">Kondisi</th>
+              <th scope="col">Lokasi Penyimpanan</th>
+              <th scope="col">Pembaruan</th>
+              <th scope="col" style="width: 150px; text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-alat">
+            <!-- Data alat akan dirender secara dinamis oleh dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: PEMESANAN LAYANAN                                          -->
+    <!-- ================================================================= -->
+    <section id="tab-content-pemesanan" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-pemesanan">
+      <div class="toolbar-card">
+        <div class="filters-group">
+          <p style="margin: 0; font-weight: 600; color: #475569;">
+            Daftar Pesanan &amp; Reservasi Masuk dari Formulir Publik
+          </p>
+          <button type="button" id="btn-refresh-pemesanan" class="btn-secondary-action">
+            🔄 Muat Ulang Pemesanan
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table" aria-label="Daftar Pemesanan Layanan UMKM Pesisir">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 70px;">ID</th>
+              <th scope="col">Nama Pemesan</th>
+              <th scope="col">Kontak / WA</th>
+              <th scope="col">Pilihan Layanan</th>
+              <th scope="col">Jumlah</th>
+              <th scope="col">Status</th>
+              <th scope="col">Catatan Tambahan</th>
+              <th scope="col">Waktu Masuk</th>
+              <th scope="col" style="width: 150px; text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-pemesanan">
+            <!-- Data pemesanan akan dirender secara dinamis oleh dashboard.js -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- MODAL DIALOG: FORM ALAT (TAMBAH / EDIT DENGAN PREPARED STATEMENT) -->
+  <!-- ================================================================= -->
+  <dialog id="modal-alat" class="modal-dialog" aria-labelledby="modal-alat-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-alat-title">Tambah Peralatan Pesisir Baru</h3>
+        <button type="button" class="modal-close-btn" onclick="document.getElementById('modal-alat').close()" aria-label="Tutup form">&times;</button>
+      </div>
+
+      <div id="modal-alat-alert" class="modal-status-alert" role="alert"></div>
+
+      <form id="form-alat" class="modal-form">
+        <!-- Input ID Hidden (Kosong untuk create/POST, terisi untuk edit/PUT) -->
+        <input type="hidden" id="alat-id" name="id">
+
+        <div class="form-group">
+          <label for="alat-nama">Nama Peralatan <span style="color:#dc2626;">*</span></label>
+          <input type="text" id="alat-nama" name="nama" required minlength="3" maxlength="120" placeholder="Contoh: Coolbox 200 Liter High Density">
+        </div>
+
+        <div class="form-group">
+          <label for="alat-kategori">Kategori / Jenis Alat <span style="color:#dc2626;">*</span></label>
+          <input type="text" id="alat-kategori" name="kategori" required list="list-kategori-alat" placeholder="Pilih atau ketik kategori baru...">
+          <datalist id="list-kategori-alat">
+            <option value="Tangkap">
+            <option value="Penyimpanan">
+            <option value="Navigasi">
+            <option value="Pengolahan">
+            <option value="Pengemasan">
+            <option value="Keselamatan">
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label for="alat-jumlah">Jumlah Unit Tersedia <span style="color:#dc2626;">*</span></label>
+          <input type="number" id="alat-jumlah" name="jumlah" required min="1" max="10000" value="1">
+        </div>
+
+        <div class="form-group">
+          <label for="alat-kondisi">Kondisi Alat <span style="color:#dc2626;">*</span></label>
+          <select id="alat-kondisi" name="kondisi" required>
+            <option value="Baik">Baik (Siap Pakai)</option>
+            <option value="Perlu Cek">Perlu Cek (Perlu Pemeliharaan Ringan)</option>
+            <option value="Rusak">Rusak (Dalam Perbaikan)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="alat-lokasi">Lokasi Penyimpanan <span style="color:#dc2626;">*</span></label>
+          <input type="text" id="alat-lokasi" name="lokasi" required maxlength="100" placeholder="Contoh: Gudang A, Dermaga 1, Sentra UMKM">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-batal-alat" class="btn-secondary-action">Batal</button>
+          <button type="submit" id="btn-submit-alat" class="btn-primary-action">Simpan Data</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ================================================================= -->
+  <!-- MODAL DIALOG: EDIT STATUS PEMESANAN                               -->
+  <!-- ================================================================= -->
+  <dialog id="modal-pemesanan" class="modal-dialog" aria-labelledby="modal-pemesanan-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-pemesanan-title">Perbarui Status Pemesanan Layanan</h3>
+        <button type="button" class="modal-close-btn" onclick="document.getElementById('modal-pemesanan').close()" aria-label="Tutup modal">&times;</button>
+      </div>
+
+      <form id="form-pemesanan" class="modal-form">
+        <input type="hidden" id="pesanan-id" name="id">
+
+        <div class="form-group">
+          <label for="pesanan-nama">Nama Pemesan</label>
+          <input type="text" id="pesanan-nama" readonly style="background-color: #f8fafc; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label for="pesanan-kontak">Kontak WhatsApp</label>
+          <input type="text" id="pesanan-kontak" readonly style="background-color: #f8fafc; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label for="pesanan-kategori">Layanan / Produk Diminta</label>
+          <input type="text" id="pesanan-kategori" readonly style="background-color: #f8fafc; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label for="pesanan-jumlah">Kuantitas</label>
+          <input type="number" id="pesanan-jumlah" readonly style="background-color: #f8fafc; cursor: not-allowed;">
+        </div>
+
+        <div class="form-group">
+          <label for="pesanan-status">Ubah Status Tindak Lanjut <span style="color:#dc2626;">*</span></label>
+          <select id="pesanan-status" name="status" required>
+            <option value="Menunggu">Menunggu</option>
+            <option value="Diproses">Diproses</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Dibatalkan">Dibatalkan</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="pesanan-catatan">Catatan / Alamat Pemesan</label>
+          <textarea id="pesanan-catatan" name="catatan" rows="3"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-batal-pemesanan" class="btn-secondary-action">Batal</button>
+          <button type="submit" class="btn-primary-action">Simpan Status</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ================================================================= -->
+  <!-- MODAL DIALOG: KONFIRMASI HAPUS (DELETE WITH CONFIRMATION)         -->
+  <!-- ================================================================= -->
+  <dialog id="modal-konfirmasi-hapus" class="modal-dialog" aria-labelledby="modal-hapus-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-hapus-title" style="color: #b91c1c;">⚠️ Konfirmasi Penghapusan Data</h3>
+        <button type="button" class="modal-close-btn" onclick="document.getElementById('modal-konfirmasi-hapus').close()" aria-label="Tutup dialog">&times;</button>
+      </div>
+
+      <div style="padding: 0.5rem 0 1rem 0;">
+        <p style="font-size: 1rem; color: #334155; margin-bottom: 0.75rem;">
+          Apakah Anda yakin ingin menghapus data <strong id="konfirmasi-nama-item" style="color: #0f172a;"></strong> 
+          (ID: #<span id="konfirmasi-id-item"></span>)?
+        </p>
+        <p style="font-size: 0.875rem; color: #b91c1c; background-color: #fef2f2; border: 1px solid #fecaca; padding: 0.75rem; border-radius: 6px; margin: 0;">
+          🚨 <strong>Peringatan:</strong> Tindakan ini akan menghapus rekaman data secara permanen dari basis data MySQL melalui validasi keberadaan (existence check). Data yang terhapus tidak dapat dipulihkan.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="btn-batal-hapus" class="btn-secondary-action">Batal</button>
+        <button type="button" id="btn-konfirmasi-hapus" class="btn-danger-confirm">Ya, Hapus Data</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- JavaScript Logika Dashboard -->
+  <script src="dashboard.js"></script>
+</body>
+</html>
+

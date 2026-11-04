@@ -1,0 +1,9 @@
+Options +FollowSymLinks
+DirectorySlash On
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /pemweb-obe/
+
+RewriteRule ^dashboard$ dashboard/ [R=301,L]
+</IfModule>

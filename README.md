@@ -36,6 +36,17 @@ Halaman ini berfungsi sebagai portal informasi, etalase katalog produk olahan ha
   - Fitur filter lokasi dan pencarian ID alat.
   - **Tombol Detail & Event Delegation (Praktikum 2):** Tombol dinamis dengan atribut dataset `data-detail`, ditangani menggunakan *single event listener* pada container induk (`#daftar-alat`) melalui event delegation, serta menampilkan dialog semantik HTML5 (`<dialog id="modal-detail">`).
   - **Preferensi Limit Jumlah Item (Praktikum 3):** Dropdown pilihan batas item (5/10/20) yang disimpan ke `localStorage`, membaca preferensi tersimpan saat reload menggunakan operator `?? '5'`, dan merender item menggunakan `Array.slice()`.
+- [x] **Dashboard Operasional & Full RESTful CRUD API (Modul 11 / Advanced CRUD):**
+  - Halaman Dashboard mandiri (`/dashboard` / `dashboard/index.html`) dengan WCAG 2.1 AA accessible standard.
+  - Ringkasan KPI metrik interaktif (ragam alat, total unit, total pemesanan, pesanan menunggu).
+  - Implementasi REST API lengkap pada `api/alats.php` dan `api/pemesanan.php`:
+    - GET Collection (dengan filter kategori/kondisi/search) dan GET by ID terparameterisasi.
+    - POST Create baru dengan validasi field & prepared statements.
+    - PUT/PATCH Update berbasis ID tervalidasi dan existence check.
+    - DELETE dengan pemeriksaan keberadaan record (existence check) dan konfirmasi modal dialog.
+    - Boundary API try/catch menyeluruh dengan respons HTTP 500 generik tanpa membocorkan kredensial.
+  - Integrasi Frontend: sinkronisasi state otomatis, submit form modal, live region alert (`role="status"`), pencarian real-time, dan dialog konfirmasi hapus aman.
+  - Test suite komprehensif (`tests/test_api.php`) dengan 31 skenario uji data valid dan invalid (100% PASS).
 - [x] **Formulir Utama Aksesibel (Accessible Form):**
   - Implementasi formulir pemesanan produk & peminjaman alat berbasis HTML5 semantik.
   - Memenuhi seluruh minimal field: Nama/judul, Email/kontak, Kategori/pilihan, Angka/tanggal, Deskripsi/catatan, dan Checkbox persetujuan.
@@ -107,7 +118,9 @@ Formulir utama pada seksi `#kontak` dirancang sebagai **Portal Pemesanan (Order)
 
 3. **Mengakses Halaman Web:**
    Buka peramban web (Google Chrome / Mozilla Firefox / Microsoft Edge) dan akses URL berikut:
-   - `http://localhost/pemweb-obe`
+   - Halaman Utama: `http://localhost/pemweb-obe`
+    - Halaman Dashboard: `http://localhost/pemweb-obe/dashboard` (atau `/dashboard/`)
+    - Menjalankan Test Suite API: `php tests/test_api.php`
    - atau melalui virtual host Laragon: `http://pemweb-obe.test`
 
 ---
