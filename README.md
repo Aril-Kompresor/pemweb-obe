@@ -46,7 +46,9 @@ Halaman ini berfungsi sebagai portal informasi, etalase katalog produk olahan ha
     - DELETE dengan pemeriksaan keberadaan record (existence check) dan konfirmasi modal dialog.
     - Boundary API try/catch menyeluruh dengan respons HTTP 500 generik tanpa membocorkan kredensial.
   - Integrasi Frontend: sinkronisasi state otomatis, submit form modal, live region alert (`role="status"`), pencarian real-time, dan dialog konfirmasi hapus aman.
-  - Test suite komprehensif (`tests/test_api.php`) dengan 31 skenario uji data valid dan invalid (100% PASS).
+  - Paginasi Server-Side (`limit` & `page`) pada API dan UI dashboard dengan opsi 5/10/20 baris per halaman dan tombol navigasi halaman.
+  - Dataset awal realistis dan lengkap (36 data alat & 20 data pemesanan melalui `database/seed_many.php`).
+  - Test suite komprehensif (`tests/test_api.php`) dengan 37 skenario uji data valid, invalid, dan paginasi (100% PASS).
 - [x] **Formulir Utama Aksesibel (Accessible Form):**
   - Implementasi formulir pemesanan produk & peminjaman alat berbasis HTML5 semantik.
   - Memenuhi seluruh minimal field: Nama/judul, Email/kontak, Kategori/pilihan, Angka/tanggal, Deskripsi/catatan, dan Checkbox persetujuan.
@@ -119,8 +121,10 @@ Formulir utama pada seksi `#kontak` dirancang sebagai **Portal Pemesanan (Order)
 3. **Mengakses Halaman Web:**
    Buka peramban web (Google Chrome / Mozilla Firefox / Microsoft Edge) dan akses URL berikut:
    - Halaman Utama: `http://localhost/pemweb-obe`
-    - Halaman Dashboard: `http://localhost/pemweb-obe/dashboard` (atau `/dashboard/`)
-    - Menjalankan Test Suite API: `php tests/test_api.php`
+   - Halaman Login: `http://localhost/pemweb-obe/login` (atau `/login/`)
+   - Halaman Dashboard: `http://localhost/pemweb-obe/dashboard` (atau `/dashboard/`)
+   - Menjalankan Test Suite API: `php tests/test_api.php`
+   - Menjalankan Test Suite Login: `php tests/test_login.php`
    - atau melalui virtual host Laragon: `http://pemweb-obe.test`
 
 ---

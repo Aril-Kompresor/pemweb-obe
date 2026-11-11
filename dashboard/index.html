@@ -19,6 +19,7 @@
       </div>
       <nav class="dashboard-nav" aria-label="Navigasi Dashboard">
         <a href="../index.html">🏠 Kembali ke Beranda</a>
+        <a href="../login/">Masuk</a>
         <a href="../erd.html" target="_blank" rel="noopener">📐 Diagram ERD</a>
         <a href="../api/health.php" target="_blank" rel="noopener">🩺 Status API</a>
       </nav>
@@ -65,7 +66,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 1: INVENTARIS PERALATAN (FULL CRUD)                           -->
+    <!-- TAB 1: INVENTARIS PERALATAN (FULL CRUD & PAGINASI)                -->
     <!-- ================================================================= -->
     <section id="tab-content-alat" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-alat">
       <!-- Toolbar Pencarian & Aksi -->
@@ -126,19 +127,50 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Kontrol & Info Paginasi Alat -->
+      <div class="pagination-container" id="pagination-alat-container">
+        <div class="pagination-info" id="pagination-alat-info">
+          Memuat informasi paginasi...
+        </div>
+        <div class="pagination-controls">
+          <div class="pagination-per-page">
+            <label for="per-page-alat">Baris per halaman:</label>
+            <select id="per-page-alat" aria-label="Jumlah baris per halaman alat">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+          <nav class="pagination-nav" aria-label="Navigasi Halaman Alat">
+            <button type="button" class="btn-page" id="btn-alat-prev" aria-label="Halaman sebelumnya">‹</button>
+            <div id="pages-alat" class="page-numbers"></div>
+            <button type="button" class="btn-page" id="btn-alat-next" aria-label="Halaman berikutnya">›</button>
+          </nav>
+        </div>
+      </div>
     </section>
 
     <!-- ================================================================= -->
-    <!-- TAB 2: PEMESANAN LAYANAN                                          -->
+    <!-- TAB 2: PEMESANAN LAYANAN (FULL CRUD & PAGINASI)                   -->
     <!-- ================================================================= -->
     <section id="tab-content-pemesanan" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-pemesanan">
       <div class="toolbar-card">
         <div class="filters-group">
-          <p style="margin: 0; font-weight: 600; color: #475569;">
-            Daftar Pesanan &amp; Reservasi Masuk dari Formulir Publik
-          </p>
+          <div>
+            <input type="search" id="search-pemesanan" placeholder="🔍 Cari pemesan, kontak, layanan...">
+          </div>
+          <div>
+            <select id="filter-status-pemesanan" aria-label="Filter status pemesanan">
+              <option value="Semua">Semua Status</option>
+              <option value="Menunggu">Menunggu</option>
+              <option value="Diproses">Diproses</option>
+              <option value="Selesai">Selesai</option>
+              <option value="Dibatalkan">Dibatalkan</option>
+            </select>
+          </div>
           <button type="button" id="btn-refresh-pemesanan" class="btn-secondary-action">
-            🔄 Muat Ulang Pemesanan
+            🔄 Refresh
           </button>
         </div>
       </div>
@@ -162,6 +194,28 @@
             <!-- Data pemesanan akan dirender secara dinamis oleh dashboard.js -->
           </tbody>
         </table>
+      </div>
+
+      <!-- Kontrol & Info Paginasi Pemesanan -->
+      <div class="pagination-container" id="pagination-pemesanan-container">
+        <div class="pagination-info" id="pagination-pemesanan-info">
+          Memuat informasi paginasi...
+        </div>
+        <div class="pagination-controls">
+          <div class="pagination-per-page">
+            <label for="per-page-pemesanan">Baris per halaman:</label>
+            <select id="per-page-pemesanan" aria-label="Jumlah baris per halaman pemesanan">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+          <nav class="pagination-nav" aria-label="Navigasi Halaman Pemesanan">
+            <button type="button" class="btn-page" id="btn-pemesanan-prev" aria-label="Halaman sebelumnya">‹</button>
+            <div id="pages-pemesanan" class="page-numbers"></div>
+            <button type="button" class="btn-page" id="btn-pemesanan-next" aria-label="Halaman berikutnya">›</button>
+          </nav>
+        </div>
       </div>
     </section>
 
@@ -315,4 +369,3 @@
   <script src="dashboard.js"></script>
 </body>
 </html>
-

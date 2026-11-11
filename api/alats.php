@@ -2,6 +2,9 @@
 
 date_default_timezone_set('Asia/Makassar');
 
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 require_once dirname(__DIR__) . '/config/database.php';
 require_once __DIR__ . '/middleware.php';
 
@@ -34,10 +37,15 @@ if ($requestMethod === 'OPTIONS') {
 // TRY/CATCH BOUNDARY API: Menjamin response 500 generik tanpa leak
 // =============================================================
 try {
+    // Simulasi kegagalan database untuk pengujian keamanan (Memastikan tidak ada leak password / stack trace ke client)
+    if (isset($_GET['simulate_db_error']) && $_GET['simulate_db_error'] === '1') {
+        throw new PDOException("SQLSTATE[HY000] [1045] Access denied for user 'root'@'127.0.0.1' (using password: YES) with secret db_password_rahasia_123");
+    }
+
     $pdo = db();
 
     // ---------------------------------------------------------
-    // 1. GET: Collection & By ID (Prepared Statements)
+    // 1. GET: Collection & By ID (Prepared Statements & Pagination)
     // ---------------------------------------------------------
     if ($requestMethod === 'GET') {
         // --- 1.A. GET by ID ---
@@ -85,40 +93,81 @@ try {
             exit;
         }
 
-        // --- 1.B. GET Collection (dengan filter kategori/kondisi/search) ---
+        // --- 1.B. GET Collection (dengan Filter & Pagination) ---
         $kategori = $_GET['kategori'] ?? $_GET['jenis'] ?? null;
         $kondisi = $_GET['kondisi'] ?? null;
         $lokasi = $_GET['lokasi'] ?? null;
         $search = $_GET['search'] ?? null;
 
-        $sql = "SELECT id, nama, kategori, kategori AS jenis, jumlah, kondisi, lokasi, created_at, updated_at FROM alat WHERE 1=1";
+        $whereSql = " FROM alat WHERE 1=1";
         $params = [];
 
         if ($kategori !== null && trim($kategori) !== '' && trim($kategori) !== 'Semua') {
-            $sql .= " AND kategori = :kategori";
+            $whereSql .= " AND kategori = :kategori";
             $params['kategori'] = trim($kategori);
         }
 
         if ($kondisi !== null && trim($kondisi) !== '' && trim($kondisi) !== 'Semua') {
-            $sql .= " AND kondisi = :kondisi";
+            $whereSql .= " AND kondisi = :kondisi";
             $params['kondisi'] = trim($kondisi);
         }
 
         if ($lokasi !== null && trim($lokasi) !== '' && trim($lokasi) !== 'Semua') {
-            $sql .= " AND lokasi = :lokasi";
+            $whereSql .= " AND lokasi = :lokasi";
             $params['lokasi'] = trim($lokasi);
         }
 
         if ($search !== null && trim($search) !== '') {
-            $sql .= " AND (nama LIKE :search_nama OR lokasi LIKE :search_lokasi OR kategori LIKE :search_kat)";
+            $whereSql .= " AND (nama LIKE :search_nama OR lokasi LIKE :search_lokasi OR kategori LIKE :search_kat)";
             $keyword = '%' . trim($search) . '%';
             $params['search_nama'] = $keyword;
             $params['search_lokasi'] = $keyword;
             $params['search_kat'] = $keyword;
         }
 
-        $sql .= " ORDER BY id DESC";
+        // Hitung total baris data yang cocok dengan filter untuk informasi paginasi
+        $countStmt = $pdo->prepare("SELECT COUNT(*)" . $whereSql);
+        $countStmt->execute($params);
+        $totalRecords = (int)$countStmt->fetchColumn();
 
+        // Parameter Paginasi
+        $isPaginated = isset($_GET['page']) || isset($_GET['limit']) || isset($_GET['per_page']);
+        $limitParam = $_GET['limit'] ?? $_GET['per_page'] ?? null;
+
+        $sql = "SELECT id, nama, kategori, kategori AS jenis, jumlah, kondisi, lokasi, created_at, updated_at" . $whereSql . " ORDER BY id DESC";
+
+        if ($isPaginated && $limitParam !== 'all') {
+            $limit = is_numeric($limitParam) ? max(1, min(100, (int)$limitParam)) : 10;
+            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+            $totalPages = $totalRecords > 0 ? (int)ceil($totalRecords / $limit) : 1;
+            $offset = ($page - 1) * $limit;
+
+            $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $data = $stmt->fetchAll();
+
+            http_response_code(200);
+            echo json_encode([
+                'status' => 'success',
+                'code' => 200,
+                'pagination' => [
+                    'total' => $totalRecords,
+                    'per_page' => $limit,
+                    'current_page' => $page,
+                    'total_pages' => $totalPages,
+                    'has_next' => $page < $totalPages,
+                    'has_prev' => $page > 1
+                ],
+                'total' => $totalRecords,
+                'count' => count($data),
+                'data' => $data
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Jika tidak meminta paginasi, kembalikan semua data
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll();
@@ -127,7 +176,16 @@ try {
         echo json_encode([
             'status' => 'success',
             'code' => 200,
-            'total' => count($data),
+            'pagination' => [
+                'total' => $totalRecords,
+                'per_page' => $totalRecords,
+                'current_page' => 1,
+                'total_pages' => 1,
+                'has_next' => false,
+                'has_prev' => false
+            ],
+            'total' => $totalRecords,
+            'count' => count($data),
             'data' => $data
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
@@ -137,6 +195,7 @@ try {
     // 2. POST: Create Baru dengan Validasi & Prepared Statement
     // ---------------------------------------------------------
     if ($requestMethod === 'POST') {
+        requireRole(['admin', 'petugas']);
         requireJsonContentTypeMiddleware();
 
         $rawInput = file_get_contents('php://input');
@@ -250,6 +309,7 @@ try {
     // 3. PUT / PATCH: Update Menggunakan ID yang Tervalidasi
     // ---------------------------------------------------------
     if ($requestMethod === 'PUT' || $requestMethod === 'PATCH') {
+        requireRole(['admin', 'petugas']);
         requireJsonContentTypeMiddleware();
 
         $rawInput = file_get_contents('php://input');
@@ -436,6 +496,8 @@ try {
     // 4. DELETE: Hapus Data dengan Pemeriksaan Keberadaan (Existence)
     // ---------------------------------------------------------
     if ($requestMethod === 'DELETE') {
+        requireRole(['admin']);
+
         $idRaw = $_GET['id'] ?? null;
 
         // Jika ID tidak ada di query parameter, coba baca dari JSON body

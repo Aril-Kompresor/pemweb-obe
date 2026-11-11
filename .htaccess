@@ -3,7 +3,13 @@ DirectorySlash On
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /pemweb-obe/
 
-RewriteRule ^dashboard$ dashboard/ [R=301,L]
+# Redirect /dashboard dan /login tanpa trailing slash ke dengan trailing slash
+# Menggunakan %{REQUEST_URI} agar aman di root (/) maupun subfolder (/pemweb-obe/)
+RewriteRule ^dashboard$ %{REQUEST_URI}/ [R=301,L]
+RewriteRule ^login$ %{REQUEST_URI}/ [R=301,L]
 </IfModule>
+
+
+
+

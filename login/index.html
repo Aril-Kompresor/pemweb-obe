@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Halaman login Sistem Informasi UMKM Pesisir.">
+  <title>Login - Sistem UMKM Pesisir</title>
+
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <header class="login-header">
+        <h1>Login</h1>
+        <p>Sistem Informasi UMKM Pesisir</p>
+      </header>
+
+      <div id="login-alert" class="login-alert" role="alert" aria-live="polite"></div>
+
+      <form id="form-login" novalidate>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            autocomplete="email" 
+            placeholder="nama@pesisir.id" 
+            required>
+          <span id="email-error" class="error-text"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Kata Sandi</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            autocomplete="current-password" 
+            placeholder="Masukkan kata sandi" 
+            required>
+          <span id="password-error" class="error-text"></span>
+        </div>
+
+        <div class="form-row">
+          <label class="remember-label">
+            <input type="checkbox" id="remember" name="remember">
+            <span>Ingat saya</span>
+          </label>
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn-primary btn-block">Masuk</button>
+      </form>
+
+      <div class="demo-info">
+        <p><strong>Akun Uji Coba:</strong></p>
+        <ul>
+          <li>Admin: <code>admin@pesisir.id</code> / <code>password123</code></li>
+          <li>Petugas: <code>aril@pesisir.id</code> / <code>password123</code></li>
+          <li>Viewer: <code>nelayan.berkah@pesisir.id</code> / <code>password123</code></li>
+        </ul>
+      </div>
+
+      <footer class="login-footer">
+        <a href="../index.html">Kembali ke Beranda</a>
+        <span>&bull;</span>
+        <a href="../dashboard/">Dashboard</a>
+      </footer>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+
+</html>

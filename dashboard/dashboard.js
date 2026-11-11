@@ -1,7 +1,7 @@
 /**
  * Dashboard Manajemen UMKM Pesisir
  * Mengintegrasikan Operasi CRUD REST API (GET collection, GET by id, POST, PUT, DELETE)
- * Sesuai Standar Aksesibilitas WCAG 2.1 AA
+ * Dilengkapi Paginasi Server-Side & Sesuai Standar Aksesibilitas WCAG 2.1 AA
  */
 
 // State Aplikasi
@@ -9,10 +9,34 @@ let stateAlats = [];
 let statePemesanan = [];
 let pendingDeleteItem = null; // Menyimpan data { id, nama, type } untuk konfirmasi hapus
 
+// State Paginasi
+const paginationAlat = {
+  page: 1,
+  limit: 10,
+  total: 0,
+  totalPages: 1
+};
+
+const paginationPemesanan = {
+  page: 1,
+  limit: 10,
+  total: 0,
+  totalPages: 1
+};
+
 // URL Endpoint API
 const API_ALATS = '../api/alats.php';
 const API_PEMESANAN = '../api/pemesanan.php';
 const API_STATS = '../api/stats.php';
+
+// Helper: Debounce untuk input pencarian real-time
+function debounce(fn, delay = 350) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
 
 // Helper: Tampilkan Notifikasi Global (Live Region)
 function showGlobalAlert(message, type = 'success') {
@@ -70,7 +94,7 @@ async function loadDashboardStats() {
 }
 
 // -----------------------------------------------------------------------------
-// 2. INVENTARIS ALAT: GET COLLECTION & RENDER
+// 2. INVENTARIS ALAT: GET COLLECTION DENGAN PAGINASI
 // -----------------------------------------------------------------------------
 async function loadAlats() {
   const tbody = document.getElementById('tbody-alat');
@@ -87,8 +111,27 @@ async function loadAlats() {
     </tr>
   `;
 
+  // Susun Query Parameter (Paginasi & Filter)
+  const params = new URLSearchParams();
+  params.append('page', paginationAlat.page);
+  params.append('limit', paginationAlat.limit);
+
+  const searchInput = document.getElementById('search-alat');
+  const filterKat = document.getElementById('filter-kategori-alat');
+  const filterKon = document.getElementById('filter-kondisi-alat');
+
+  if (searchInput && searchInput.value.trim() !== '') {
+    params.append('search', searchInput.value.trim());
+  }
+  if (filterKat && filterKat.value !== 'Semua') {
+    params.append('kategori', filterKat.value);
+  }
+  if (filterKon && filterKon.value !== 'Semua') {
+    params.append('kondisi', filterKon.value);
+  }
+
   try {
-    const res = await fetch(API_ALATS);
+    const res = await fetch(`${API_ALATS}?${params.toString()}`);
     if (!res.ok) {
       throw new Error(`Gagal memuat data (HTTP ${res.status})`);
     }
@@ -96,7 +139,19 @@ async function loadAlats() {
     const result = await res.json();
     if (result.status === 'success' && Array.isArray(result.data)) {
       stateAlats = result.data;
+
+      // Update State Paginasi
+      if (result.pagination) {
+        paginationAlat.total = result.pagination.total;
+        paginationAlat.totalPages = result.pagination.total_pages;
+        paginationAlat.page = result.pagination.current_page;
+      } else {
+        paginationAlat.total = result.total || stateAlats.length;
+        paginationAlat.totalPages = Math.max(1, Math.ceil(paginationAlat.total / paginationAlat.limit));
+      }
+
       renderTableAlats(stateAlats);
+      renderPaginationControls('alat', paginationAlat);
     } else {
       throw new Error(result.message || 'Respons API tidak valid');
     }
@@ -243,7 +298,6 @@ function openTambahAlatModal() {
 // -----------------------------------------------------------------------------
 async function handleAlatFormSubmit(e) {
   e.preventDefault();
-  const form = e.target;
   const alertBox = document.getElementById('modal-alat-alert');
   const submitBtn = document.getElementById('btn-submit-alat');
 
@@ -400,7 +454,7 @@ async function executeConfirmedDelete() {
 }
 
 // -----------------------------------------------------------------------------
-// 6. PEMESANAN LAYANAN: GET, EDIT STATUS, DELETE
+// 6. PEMESANAN LAYANAN: GET DENGAN PAGINASI, EDIT STATUS, DELETE
 // -----------------------------------------------------------------------------
 async function loadPemesanan() {
   const tbody = document.getElementById('tbody-pemesanan');
@@ -417,14 +471,40 @@ async function loadPemesanan() {
     </tr>
   `;
 
+  const params = new URLSearchParams();
+  params.append('page', paginationPemesanan.page);
+  params.append('limit', paginationPemesanan.limit);
+
+  const searchInput = document.getElementById('search-pemesanan');
+  const filterStatus = document.getElementById('filter-status-pemesanan');
+
+  if (searchInput && searchInput.value.trim() !== '') {
+    params.append('search', searchInput.value.trim());
+  }
+  if (filterStatus && filterStatus.value !== 'Semua') {
+    params.append('status', filterStatus.value);
+  }
+
   try {
-    const res = await fetch(API_PEMESANAN);
+    const res = await fetch(`${API_PEMESANAN}?${params.toString()}`);
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
     const result = await res.json();
     if (result.status === 'success' && Array.isArray(result.data)) {
       statePemesanan = result.data;
+
+      // Update State Paginasi
+      if (result.pagination) {
+        paginationPemesanan.total = result.pagination.total;
+        paginationPemesanan.totalPages = result.pagination.total_pages;
+        paginationPemesanan.page = result.pagination.current_page;
+      } else {
+        paginationPemesanan.total = result.total || statePemesanan.length;
+        paginationPemesanan.totalPages = Math.max(1, Math.ceil(paginationPemesanan.total / paginationPemesanan.limit));
+      }
+
       renderTablePemesanan(statePemesanan);
+      renderPaginationControls('pemesanan', paginationPemesanan);
     } else {
       throw new Error(result.message || 'Respons API tidak valid');
     }
@@ -451,7 +531,7 @@ function renderTablePemesanan(items) {
       <tr>
         <td colspan="9">
           <div class="table-state-box">
-            <p>📭 Belum ada data pemesanan layanan.</p>
+            <p>📭 Belum ada data pemesanan layanan yang sesuai.</p>
           </div>
         </td>
       </tr>
@@ -554,7 +634,66 @@ async function handlePemesananFormSubmit(e) {
 }
 
 // -----------------------------------------------------------------------------
-// 7. EVENT DELEGATION & EVENT LISTENERS
+// 7. RENDER KONTROL PAGINASI (GENERIC UNTUK ALAT & PEMESANAN)
+// -----------------------------------------------------------------------------
+function renderPaginationControls(type, state) {
+  const infoEl = document.getElementById(`pagination-${type}-info`);
+  const btnPrev = document.getElementById(`btn-${type}-prev`);
+  const btnNext = document.getElementById(`btn-${type}-next`);
+  const pagesEl = document.getElementById(`pages-${type}`);
+
+  if (!infoEl || !btnPrev || !btnNext || !pagesEl) return;
+
+  if (state.total === 0) {
+    infoEl.innerHTML = 'Menampilkan <strong>0</strong> data';
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    pagesEl.innerHTML = '';
+    return;
+  }
+
+  const startIdx = (state.page - 1) * state.limit + 1;
+  const endIdx = Math.min(state.page * state.limit, state.total);
+  infoEl.innerHTML = `Menampilkan <strong>${startIdx} - ${endIdx}</strong> dari <strong>${state.total}</strong> data (Halaman <strong>${state.page}</strong> dari <strong>${state.totalPages}</strong>)`;
+
+  btnPrev.disabled = state.page <= 1;
+  btnNext.disabled = state.page >= state.totalPages;
+
+  // Render Deretan Tombol Halaman (Maksimal 5 tombol angka di sekitar halaman aktif)
+  pagesEl.innerHTML = '';
+  let startPage = Math.max(1, state.page - 2);
+  let endPage = Math.min(state.totalPages, startPage + 4);
+  if (endPage - startPage < 4) {
+    startPage = Math.max(1, endPage - 4);
+  }
+
+  for (let p = startPage; p <= endPage; p++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn-page ${p === state.page ? 'active' : ''}`;
+    btn.textContent = p;
+    btn.setAttribute('aria-label', `Pindah ke halaman ${p}`);
+    if (p === state.page) {
+      btn.setAttribute('aria-current', 'page');
+    }
+
+    btn.addEventListener('click', () => {
+      if (state.page !== p) {
+        state.page = p;
+        if (type === 'alat') {
+          loadAlats();
+        } else {
+          loadPemesanan();
+        }
+      }
+    });
+
+    pagesEl.appendChild(btn);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 8. EVENT DELEGATION & EVENT LISTENERS
 // -----------------------------------------------------------------------------
 function initEventListeners() {
   // Tombol Tambah Alat Baru
@@ -567,6 +706,7 @@ function initEventListeners() {
   const btnRefreshAlat = document.getElementById('btn-refresh-alat');
   if (btnRefreshAlat) {
     btnRefreshAlat.addEventListener('click', () => {
+      paginationAlat.page = 1;
       loadAlats();
       loadDashboardStats();
     });
@@ -576,8 +716,71 @@ function initEventListeners() {
   const btnRefreshPesan = document.getElementById('btn-refresh-pemesanan');
   if (btnRefreshPesan) {
     btnRefreshPesan.addEventListener('click', () => {
+      paginationPemesanan.page = 1;
       loadPemesanan();
       loadDashboardStats();
+    });
+  }
+
+  // Kontrol Paginasi Alat (Previous & Next)
+  const btnAlatPrev = document.getElementById('btn-alat-prev');
+  if (btnAlatPrev) {
+    btnAlatPrev.addEventListener('click', () => {
+      if (paginationAlat.page > 1) {
+        paginationAlat.page--;
+        loadAlats();
+      }
+    });
+  }
+
+  const btnAlatNext = document.getElementById('btn-alat-next');
+  if (btnAlatNext) {
+    btnAlatNext.addEventListener('click', () => {
+      if (paginationAlat.page < paginationAlat.totalPages) {
+        paginationAlat.page++;
+        loadAlats();
+      }
+    });
+  }
+
+  // Pilihan Baris per Halaman Alat
+  const selectPerPageAlat = document.getElementById('per-page-alat');
+  if (selectPerPageAlat) {
+    selectPerPageAlat.addEventListener('change', (e) => {
+      paginationAlat.limit = parseInt(e.target.value, 10);
+      paginationAlat.page = 1; // Reset ke halaman pertama
+      loadAlats();
+    });
+  }
+
+  // Kontrol Paginasi Pemesanan (Previous & Next)
+  const btnPesanPrev = document.getElementById('btn-pemesanan-prev');
+  if (btnPesanPrev) {
+    btnPesanPrev.addEventListener('click', () => {
+      if (paginationPemesanan.page > 1) {
+        paginationPemesanan.page--;
+        loadPemesanan();
+      }
+    });
+  }
+
+  const btnPesanNext = document.getElementById('btn-pemesanan-next');
+  if (btnPesanNext) {
+    btnPesanNext.addEventListener('click', () => {
+      if (paginationPemesanan.page < paginationPemesanan.totalPages) {
+        paginationPemesanan.page++;
+        loadPemesanan();
+      }
+    });
+  }
+
+  // Pilihan Baris per Halaman Pemesanan
+  const selectPerPagePesan = document.getElementById('per-page-pemesanan');
+  if (selectPerPagePesan) {
+    selectPerPagePesan.addEventListener('change', (e) => {
+      paginationPemesanan.limit = parseInt(e.target.value, 10);
+      paginationPemesanan.page = 1;
+      loadPemesanan();
     });
   }
 
@@ -665,32 +868,31 @@ function initEventListeners() {
     });
   }
 
-  // Filter & Search Real-Time Alat
-  const searchInput = document.getElementById('search-alat');
+  // Filter & Search Real-Time Alat (dengan Debounce)
+  const searchInputAlat = document.getElementById('search-alat');
   const filterKategori = document.getElementById('filter-kategori-alat');
   const filterKondisi = document.getElementById('filter-kondisi-alat');
 
-  function applyAlatFilters() {
-    const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
-    const kat = filterKategori ? filterKategori.value : 'Semua';
-    const kon = filterKondisi ? filterKondisi.value : 'Semua';
+  const onAlatFilterChange = () => {
+    paginationAlat.page = 1; // Reset ke halaman pertama saat filter berubah
+    loadAlats();
+  };
 
-    const filtered = stateAlats.filter(item => {
-      const matchKeyword = !keyword || 
-        item.nama.toLowerCase().includes(keyword) || 
-        (item.kategori && item.kategori.toLowerCase().includes(keyword)) ||
-        (item.lokasi && item.lokasi.toLowerCase().includes(keyword));
-      const matchKategori = (kat === 'Semua') || (item.kategori === kat || item.jenis === kat);
-      const matchKondisi = (kon === 'Semua') || (item.kondisi === kon);
-      return matchKeyword && matchKategori && matchKondisi;
-    });
+  if (searchInputAlat) searchInputAlat.addEventListener('input', debounce(onAlatFilterChange, 300));
+  if (filterKategori) filterKategori.addEventListener('change', onAlatFilterChange);
+  if (filterKondisi) filterKondisi.addEventListener('change', onAlatFilterChange);
 
-    renderTableAlats(filtered);
-  }
+  // Filter & Search Real-Time Pemesanan
+  const searchInputPesan = document.getElementById('search-pemesanan');
+  const filterStatusPesan = document.getElementById('filter-status-pemesanan');
 
-  if (searchInput) searchInput.addEventListener('input', applyAlatFilters);
-  if (filterKategori) filterKategori.addEventListener('change', applyAlatFilters);
-  if (filterKondisi) filterKondisi.addEventListener('change', applyAlatFilters);
+  const onPesanFilterChange = () => {
+    paginationPemesanan.page = 1;
+    loadPemesanan();
+  };
+
+  if (searchInputPesan) searchInputPesan.addEventListener('input', debounce(onPesanFilterChange, 300));
+  if (filterStatusPesan) filterStatusPesan.addEventListener('change', onPesanFilterChange);
 
   // Tab Switcher
   const tabAlatBtn = document.getElementById('tab-btn-alat');
@@ -740,4 +942,3 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAlats();
   loadPemesanan();
 });
-

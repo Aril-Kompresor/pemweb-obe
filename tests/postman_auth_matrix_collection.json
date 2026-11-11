@@ -1,0 +1,92 @@
+{
+  "info": {
+    "_postman_id": "c1f7a9d0-8b43-4e89-a2e1-9876543210ab",
+    "name": "Pengujian Matriks Akses 4 Persona - Pemweb OBE",
+    "description": "Koleksi Postman untuk menguji hak akses RBAC (Role-Based Access Control) pada 4 persona: Anonymous, Viewer, Petugas, dan Admin sesuai spesifikasi Modul Praktikum Pemweb OBE.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost",
+      "type": "string"
+    },
+    {
+      "key": "test_alat_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Persona - Anonymous (Guest)",
+      "item": [
+        {
+          "name": "1.A GET Katalog Alat (Harus 200 OK)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/alats.php"
+          }
+        },
+        {
+          "name": "1.B POST Tambah Alat (Harus 401 Unauthorized)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nama\": \"Alat Anon\", \"kategori\": \"Tangkap\", \"jumlah\": 1, \"kondisi\": \"Baik\", \"lokasi\": \"Gudang\"}"
+            },
+            "url": "{{base_url}}/api/alats.php"
+          }
+        },
+        {
+          "name": "1.C GET Profil Me (Harus 401 Unauthorized)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/me.php"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Persona - Viewer",
+      "item": [
+        {
+          "name": "2.A Login Viewer",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"nelayan.berkah@pesisir.id\", \"password\": \"password123\"}"
+            },
+            "url": "{{base_url}}/api/login.php"
+          }
+        },
+        {
+          "name": "2.B GET Profil Me (Harus 200 OK)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/me.php"
+          }
+        },
+        {
+          "name": "2.C DELETE Alat (Harus 403 Forbidden)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/alats.php?id=1"
+          }
+        },
+        {
+          "name": "2.D Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/logout.php"
+          }
+        }
+      ]
+    }
+  ]
+}
+
