@@ -1,5 +1,8 @@
 /screenshots
 /vendor/
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+*.key
+*.pem
+*.log

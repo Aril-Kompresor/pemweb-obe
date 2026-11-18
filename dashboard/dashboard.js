@@ -28,6 +28,30 @@ const paginationPemesanan = {
 const API_ALATS = '../api/alats.php';
 const API_PEMESANAN = '../api/pemesanan.php';
 const API_STATS = '../api/stats.php';
+const API_CSRF = '../api/csrf.php';
+
+let currentCsrfToken = '';
+
+function syncCsrfInputs() {
+  document.querySelectorAll('input[name="csrf_token"]').forEach(input => {
+    input.value = currentCsrfToken;
+  });
+}
+
+async function loadCsrfToken() {
+  try {
+    const res = await fetch(API_CSRF, { credentials: 'same-origin' });
+    if (!res.ok) return '';
+    const data = await res.json();
+    if (data && data.csrf_token) {
+      currentCsrfToken = data.csrf_token;
+      syncCsrfInputs();
+    }
+    return currentCsrfToken;
+  } catch {
+    return '';
+  }
+}
 
 // Helper: Debounce untuk input pencarian real-time
 function debounce(fn, delay = 350) {
@@ -38,31 +62,36 @@ function debounce(fn, delay = 350) {
   };
 }
 
-// Helper: Tampilkan Notifikasi Global (Live Region)
+// Helper: Tampilkan Notifikasi Global (Live Region) - Aman XSS dengan textContent
 function showGlobalAlert(message, type = 'success') {
   const alertEl = document.getElementById('global-alert');
   if (!alertEl) return;
 
   alertEl.className = `alert-banner alert-${type} is-visible`;
-  alertEl.innerHTML = `
-    <span>${message}</span>
-    <button type="button" class="alert-close" aria-label="Tutup notifikasi">&times;</button>
-  `;
+  alertEl.textContent = '';
 
-  const closeBtn = alertEl.querySelector('.alert-close');
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      alertEl.className = 'alert-banner';
-      alertEl.innerHTML = '';
-    };
-  }
+  const span = document.createElement('span');
+  span.textContent = message;
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'alert-close';
+  closeBtn.setAttribute('aria-label', 'Tutup notifikasi');
+  closeBtn.textContent = '×';
+  closeBtn.onclick = () => {
+    alertEl.className = 'alert-banner';
+    alertEl.textContent = '';
+  };
+
+  alertEl.appendChild(span);
+  alertEl.appendChild(closeBtn);
 
   // Auto hide setelah 6 detik jika sukses
   if (type === 'success') {
     setTimeout(() => {
       if (alertEl.classList.contains('is-visible')) {
         alertEl.className = 'alert-banner';
-        alertEl.innerHTML = '';
+        alertEl.textContent = '';
       }
     }, 6000);
   }
@@ -160,8 +189,8 @@ async function loadAlats() {
       <tr>
         <td colspan="8">
           <div class="table-state-box" style="color: #b91c1c;">
-            <p>⚠️ <strong>Gagal memuat data alat:</strong> ${err.message}</p>
-            <button type="button" class="btn-primary-action" onclick="loadAlats()" style="margin: 0.5rem auto;">🔄 Coba Lagi</button>
+            <p><strong>Gagal memuat data alat:</strong> ${escapeHtml(err.message)}</p>
+            <button type="button" class="btn-primary-action" onclick="loadAlats()" style="margin: 0.5rem auto;">Coba Lagi</button>
           </div>
         </td>
       </tr>
@@ -282,6 +311,7 @@ function openTambahAlatModal() {
   if (!modal || !form) return;
 
   form.reset();
+  syncCsrfInputs();
   document.getElementById('alat-id').value = ''; // Kosongkan id menandakan mode create (POST)
   if (title) title.textContent = 'Tambah Peralatan Pesisir Baru';
   if (alertBox) {
@@ -340,6 +370,12 @@ async function handleAlatFormSubmit(e) {
   }
 
   try {
+    const csrfInput = document.getElementById('csrf-token-alat');
+    let csrfToken = (csrfInput ? csrfInput.value : '') || currentCsrfToken;
+    if (!csrfToken) {
+      csrfToken = await loadCsrfToken();
+    }
+
     let url = API_ALATS;
     let method = 'POST';
 
@@ -348,11 +384,14 @@ async function handleAlatFormSubmit(e) {
       method = 'PUT';
       payload.id = parseInt(id, 10);
     }
+    payload.csrf_token = csrfToken;
 
     const res = await fetch(url, {
       method: method,
+      credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
       },
       body: JSON.stringify(payload)
     });
@@ -361,14 +400,14 @@ async function handleAlatFormSubmit(e) {
 
     if (res.ok && (result.status === 'success' || res.status === 200 || res.status === 201)) {
       document.getElementById('modal-alat').close();
-      const actionMsg = isEdit 
-        ? `Data alat <strong>${escapeHtml(result.data.nama)}</strong> (ID: #${result.data.id}) berhasil diperbarui!`
-        : `Data alat baru <strong>${escapeHtml(result.data.nama)}</strong> berhasil ditambahkan dengan ID #${result.data.id}!`;
+      const actionMsg = isEdit
+        ? `Data alat ${result.data.nama} (ID: #${result.data.id}) berhasil diperbarui!`
+        : `Data alat baru ${result.data.nama} berhasil ditambahkan dengan ID #${result.data.id}!`;
       showGlobalAlert(actionMsg, 'success');
       loadAlats();
       loadDashboardStats();
     } else {
-      const errDetail = result.errors ? Object.values(result.errors).join('<br>') : result.message;
+      const errDetail = result.errors ? Object.values(result.errors).join(' | ') : result.message;
       showModalAlert(errDetail || 'Gagal menyimpan data.', 'error');
     }
   } catch (err) {
@@ -385,7 +424,7 @@ function showModalAlert(msg, type = 'error') {
   const alertBox = document.getElementById('modal-alat-alert');
   if (!alertBox) return;
   alertBox.className = `modal-status-alert alert-${type} is-visible`;
-  alertBox.innerHTML = `⚠️ ${msg}`;
+  alertBox.textContent = msg;
 }
 
 // -----------------------------------------------------------------------------
@@ -421,16 +460,28 @@ async function executeConfirmedDelete() {
   }
 
   try {
+    const csrfInput = document.getElementById('csrf-token-hapus');
+    let csrfToken = (csrfInput ? csrfInput.value : '') || currentCsrfToken;
+    if (!csrfToken) {
+      csrfToken = await loadCsrfToken();
+    }
+
     const endpoint = type === 'pemesanan' ? API_PEMESANAN : API_ALATS;
     const res = await fetch(`${endpoint}?id=${encodeURIComponent(id)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
+      body: JSON.stringify({ csrf_token: csrfToken })
     });
 
     const result = await res.json();
 
     if (res.ok && result.status === 'success') {
       if (modal) modal.close();
-      showGlobalAlert(`Data ${type === 'pemesanan' ? 'pemesanan' : 'alat'} <strong>${escapeHtml(nama)}</strong> (ID: #${id}) berhasil dihapus.`, 'success');
+      showGlobalAlert(`Data ${type === 'pemesanan' ? 'pemesanan' : 'alat'} ${nama} (ID: #${id}) berhasil dihapus.`, 'success');
       if (type === 'pemesanan') {
         loadPemesanan();
       } else {
@@ -513,8 +564,8 @@ async function loadPemesanan() {
       <tr>
         <td colspan="9">
           <div class="table-state-box" style="color: #b91c1c;">
-            <p>⚠️ Gagal memuat data pemesanan: ${err.message}</p>
-            <button type="button" class="btn-primary-action" onclick="loadPemesanan()">🔄 Coba Lagi</button>
+            <p>Gagal memuat data pemesanan: ${escapeHtml(err.message)}</p>
+            <button type="button" class="btn-primary-action" onclick="loadPemesanan()">Coba Lagi</button>
           </div>
         </td>
       </tr>
@@ -607,7 +658,14 @@ async function openEditPemesananModal(id) {
 async function handlePemesananFormSubmit(e) {
   e.preventDefault();
   const id = document.getElementById('pesanan-id').value;
+  const csrfInput = document.getElementById('csrf-token-pesanan');
+  let csrfToken = (csrfInput ? csrfInput.value : '') || currentCsrfToken;
+  if (!csrfToken) {
+    csrfToken = await loadCsrfToken();
+  }
+
   const payload = {
+    csrf_token: csrfToken,
     status: document.getElementById('pesanan-status').value,
     catatan: document.getElementById('pesanan-catatan').value.trim()
   };
@@ -615,14 +673,18 @@ async function handlePemesananFormSubmit(e) {
   try {
     const res = await fetch(`${API_PEMESANAN}?id=${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+      },
       body: JSON.stringify(payload)
     });
 
     const result = await res.json();
     if (res.ok && result.status === 'success') {
       document.getElementById('modal-pemesanan').close();
-      showGlobalAlert(`Status pemesanan #${id} berhasil diperbarui menjadi <strong>${payload.status}</strong>.`, 'success');
+      showGlobalAlert(`Status pemesanan #${id} berhasil diperbarui menjadi ${payload.status}.`, 'success');
       loadPemesanan();
       loadDashboardStats();
     } else {
@@ -938,6 +1000,7 @@ function escapeHtml(str) {
 // Inisialisasi saat DOM siap
 document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
+  loadCsrfToken();
   loadDashboardStats();
   loadAlats();
   loadPemesanan();

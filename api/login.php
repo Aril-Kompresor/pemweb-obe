@@ -16,7 +16,7 @@ if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=UTF-8');
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
 }
 
 $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -32,6 +32,8 @@ try {
     // 1. GET: Cek Status Autentikasi Pengguna Aktif (Session Check)
     // -------------------------------------------------------------
     if ($requestMethod === 'GET') {
+        $csrfToken = generateCsrfToken();
+
         if (!empty($_SESSION['user_id']) && !empty($_SESSION['role'])) {
             http_response_code(200);
             echo json_encode([
@@ -39,6 +41,7 @@ try {
                 'code' => 200,
                 'authenticated' => true,
                 'message' => 'Sesi login aktif',
+                'csrf_token' => $csrfToken,
                 'data' => [
                     'user' => [
                         'id' => (int)$_SESSION['user_id'],
@@ -46,7 +49,8 @@ try {
                         'nama' => $_SESSION['nama'] ?? '',
                         'email' => $_SESSION['email'] ?? '',
                         'role' => $_SESSION['role']
-                    ]
+                    ],
+                    'csrf_token' => $csrfToken
                 ]
             ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit;
@@ -58,6 +62,7 @@ try {
             'code' => 200,
             'authenticated' => false,
             'message' => 'Belum ada pengguna yang login',
+            'csrf_token' => $csrfToken,
             'data' => null
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         exit;
@@ -74,14 +79,10 @@ try {
         $action = trim((string)($payload['action'] ?? $_GET['action'] ?? 'login'));
 
         // =========================================================
-        // 6. PROSES LOGOUT (Metode POST)
+        // 6. PROSES LOGOUT (Metode POST + Proteksi CSRF)
         // =========================================================
         if ($action === 'logout') {
-            /**
-             * Catatan Modul 13 (CSRF Protection Readiness):
-             * Request state-changing seperti logout pada Modul 13 akan divalidasi
-             * menggunakan CSRF Token header (misal: X-CSRF-Token) yang dicocokkan dengan $_SESSION['csrf_token'].
-             */
+            requireCsrfToken($payload);
 
             // a. Kosongkan array $_SESSION
             $_SESSION = [];
@@ -113,8 +114,12 @@ try {
         }
 
         // =========================================================
-        // 2 & 3. PROSES LOGIN (Pencarian Email & password_verify)
+        // 2 & 3. PROSES LOGIN (Verifikasi CSRF, Email & password_verify)
         // =========================================================
+        if (!empty($_SESSION['csrf_token'])) {
+            requireCsrfToken($payload);
+        }
+
         $email = trim((string)($payload['email'] ?? ''));
         $password = (string)($payload['password'] ?? '');
 
@@ -170,11 +175,12 @@ try {
         // 3. Setelah login sukses: lakukan session_regenerate_id(true) untuk mencegah Session Fixation
         session_regenerate_id(true);
 
-        // 3. Simpan user_id serta role pada $_SESSION
+        // 3. Simpan user_id serta role pada $_SESSION & regenerasi CSRF token baru untuk sesi terautentikasi
         $_SESSION['user_id'] = (int)$user['id'];
         $_SESSION['role'] = (string)$user['role'];
         $_SESSION['nama'] = (string)$user['nama'];
         $_SESSION['email'] = (string)$user['email'];
+        $csrfToken = generateCsrfToken(true);
 
         $userData = [
             'id' => (int)$user['id'],
@@ -189,8 +195,10 @@ try {
             'status' => 'success',
             'code' => 200,
             'message' => 'Login berhasil! Selamat datang, ' . $user['nama'] . '.',
+            'csrf_token' => $csrfToken,
             'data' => [
                 'user' => $userData,
+                'csrf_token' => $csrfToken,
                 'redirect' => '../dashboard/'
             ]
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

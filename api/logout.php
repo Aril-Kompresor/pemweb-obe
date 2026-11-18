@@ -11,7 +11,7 @@ if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=UTF-8');
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
 }
 
 $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -32,11 +32,11 @@ if ($requestMethod !== 'POST') {
     exit;
 }
 
-/**
- * Catatan Modul 13 (CSRF Protection Readiness):
- * Request state-changing ini pada Modul 13 akan divalidasi
- * menggunakan CSRF Token header (misal: X-CSRF-Token) yang dicocokkan dengan $_SESSION['csrf_token'].
- */
+// Verifikasi CSRF Token dengan hash_equals() sebelum menghancurkan sesi
+$rawInput = file_get_contents('php://input');
+$jsonData = json_decode($rawInput, true);
+$payload = is_array($jsonData) ? $jsonData : $_POST;
+requireCsrfToken($payload);
 
 // a. Kosongkan $_SESSION
 $_SESSION = [];

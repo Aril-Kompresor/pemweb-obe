@@ -233,9 +233,10 @@
 
       <div id="modal-alat-alert" class="modal-status-alert" role="alert"></div>
 
-      <form id="form-alat" class="modal-form">
+      <form id="form-alat" class="modal-form" method="post">
         <!-- Input ID Hidden (Kosong untuk create/POST, terisi untuk edit/PUT) -->
         <input type="hidden" id="alat-id" name="id">
+        <input type="hidden" id="csrf-token-alat" name="csrf_token" value="">
 
         <div class="form-group">
           <label for="alat-nama">Nama Peralatan <span style="color:#dc2626;">*</span></label>
@@ -292,8 +293,9 @@
         <button type="button" class="modal-close-btn" onclick="document.getElementById('modal-pemesanan').close()" aria-label="Tutup modal">&times;</button>
       </div>
 
-      <form id="form-pemesanan" class="modal-form">
+      <form id="form-pemesanan" class="modal-form" method="post">
         <input type="hidden" id="pesanan-id" name="id">
+        <input type="hidden" id="csrf-token-pesanan" name="csrf_token" value="">
 
         <div class="form-group">
           <label for="pesanan-nama">Nama Pemesan</label>
@@ -359,6 +361,7 @@
       </div>
 
       <div class="modal-footer">
+        <input type="hidden" id="csrf-token-hapus" name="csrf_token" value="">
         <button type="button" id="btn-batal-hapus" class="btn-secondary-action">Batal</button>
         <button type="button" id="btn-konfirmasi-hapus" class="btn-danger-confirm">Ya, Hapus Data</button>
       </div>

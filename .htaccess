@@ -1,8 +1,22 @@
-Options +FollowSymLinks
+Options -Indexes +FollowSymLinks
 DirectorySlash On
+
+# Blokir akses HTTP langsung ke file konfigurasi dan secret sensitif
+<FilesMatch "(^\.env(\..+)?$)|(^\.git)|(^\.htaccess$)|(^\.gitignore$)|(^composer\.(json|lock)$)|(\.(sql|log|pem|key|ini)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
+
+# Blokir akses HTTP ke direktori internal/sensitif (config, database, vendor, tests, .git)
+RewriteRule ^(config|database|vendor|tests|\.git)(/|$) - [F,L]
 
 # Redirect /dashboard dan /login tanpa trailing slash ke dengan trailing slash
 # Menggunakan %{REQUEST_URI} agar aman di root (/) maupun subfolder (/pemweb-obe/)

@@ -1,3 +1,22 @@
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function sanitizeImageUrl(url) {
+  if (typeof url !== "string") return "";
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed) || /^images\/[a-zA-Z0-9._\-\/]+$/.test(trimmed)) {
+    return trimmed;
+  }
+  return "";
+}
+
 const daftarAlat = [
   { id: 1, nama: "Jaring Insang", jenis: "Tangkap", jumlah: 10, lokasi: "Gudang A" },
   { id: 2, nama: "Coolbox", jenis: "Penyimpanan", jumlah: 5, lokasi: "Dermaga 1" },
@@ -94,13 +113,29 @@ function initApp() {
 
     const card = document.createElement("article");
     card.className = "card";
-    card.innerHTML = `
-      <h3>${nama} (ID: ${id})</h3>
-      <p>Jenis: ${jenis}</p>
-      <p>Jumlah: ${jumlah} unit</p>
-      <p>Lokasi: <strong>${lokasi}</strong></p>
-      <p>${ringkasan}</p>
-    `;
+
+    const heading = document.createElement("h3");
+    heading.textContent = `${nama} (ID: ${id})`;
+    card.appendChild(heading);
+
+    const pJenis = document.createElement("p");
+    pJenis.textContent = `Jenis: ${jenis}`;
+    card.appendChild(pJenis);
+
+    const pJumlah = document.createElement("p");
+    pJumlah.textContent = `Jumlah: ${jumlah} unit`;
+    card.appendChild(pJumlah);
+
+    const pLokasi = document.createElement("p");
+    pLokasi.append("Lokasi: ");
+    const strongLokasi = document.createElement("strong");
+    strongLokasi.textContent = lokasi;
+    pLokasi.appendChild(strongLokasi);
+    card.appendChild(pLokasi);
+
+    const pRingkasan = document.createElement("p");
+    pRingkasan.textContent = ringkasan;
+    card.appendChild(pRingkasan);
 
     // Tombol Detail dengan Dataset sesuai materi praktikum
     const button = document.createElement("button");
@@ -118,15 +153,30 @@ function initApp() {
     const modal = document.getElementById("modal-detail");
     const modalContent = document.getElementById("modal-detail-content");
     if (modal && modalContent) {
-      modalContent.innerHTML = `
-        <h3>🔍 Detail Informasi Alat</h3>
-        <p><strong>Nama Alat:</strong> ${item.nama}</p>
-        <p><strong>ID Inventaris:</strong> #${item.id}</p>
-        <p><strong>Kategori / Fungsi:</strong> ${item.jenis}</p>
-        <p><strong>Ketersediaan Stok:</strong> ${item.jumlah} unit</p>
-        <p><strong>Lokasi Penyimpanan:</strong> ${item.lokasi}</p>
-        <p><strong>Ringkasan Deskripsi:</strong> ${buatRingkasanAlat(item)}</p>
-      `;
+      modalContent.textContent = "";
+
+      const heading = document.createElement("h3");
+      heading.textContent = "Detail Informasi Alat";
+      modalContent.appendChild(heading);
+
+      const rows = [
+        ["Nama Alat:", item.nama],
+        ["ID Inventaris:", `#${item.id}`],
+        ["Kategori / Fungsi:", item.jenis],
+        ["Ketersediaan Stok:", `${item.jumlah} unit`],
+        ["Lokasi Penyimpanan:", item.lokasi],
+        ["Ringkasan Deskripsi:", buatRingkasanAlat(item)]
+      ];
+
+      rows.forEach(([label, value]) => {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+        strong.textContent = label;
+        p.appendChild(strong);
+        p.append(` ${value}`);
+        modalContent.appendChild(p);
+      });
+
       if (typeof modal.showModal === "function") {
         modal.showModal();
       } else {
@@ -221,14 +271,15 @@ function initApp() {
     }
 
     const alat = cariAlatById(inventaris, id);
-    containerAlat.innerHTML = "";
+    containerAlat.textContent = "";
 
     if (!alat) {
-      containerAlat.innerHTML = `
-        <div class="empty-message">
-          <p>🔍 Alat dengan ID ${id} tidak ditemukan.</p>
-        </div>
-      `;
+      const emptyBox = document.createElement("div");
+      emptyBox.className = "empty-message";
+      const p = document.createElement("p");
+      p.textContent = `Alat dengan ID ${id} tidak ditemukan.`;
+      emptyBox.appendChild(p);
+      containerAlat.appendChild(emptyBox);
       return;
     }
 
@@ -296,20 +347,42 @@ function initAccessibleForm() {
   const statusContainer = document.getElementById("form-status");
   const btnReset = document.getElementById("btn-reset-pesanan");
   const btnKirim = document.getElementById("btn-kirim-pesanan");
+  const csrfInput = document.getElementById("csrf-token-pemesanan");
 
   if (!form || !statusContainer) return;
+
+  let activeCsrfToken = "";
+  async function loadFormCsrfToken() {
+    try {
+      const res = await fetch("api/csrf.php", { credentials: "same-origin" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.csrf_token) {
+        activeCsrfToken = data.csrf_token;
+        if (csrfInput) csrfInput.value = activeCsrfToken;
+      }
+    } catch {
+      // Abaikan jika server lokal offline
+    }
+  }
+  loadFormCsrfToken();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!form.checkValidity()) {
       statusContainer.className = "form-status is-visible status-error";
-      statusContainer.innerHTML = "⚠️ <strong>Mohon periksa kembali:</strong> Harap lengkapi semua kolom bertanda bintang (*) sebelum mengirim formulir.";
+      statusContainer.innerHTML = "<strong>Mohon periksa kembali:</strong> Harap lengkapi semua kolom bertanda bintang (*) sebelum mengirim formulir.";
       const firstInvalid = form.querySelector(":invalid");
       if (firstInvalid) firstInvalid.focus();
       return;
     }
 
+    if (csrfInput && !csrfInput.value && !activeCsrfToken) {
+      await loadFormCsrfToken();
+    }
+
+    const csrfToken = (csrfInput ? csrfInput.value : "") || activeCsrfToken;
     const nama = document.getElementById("nama-pemesan") ? document.getElementById("nama-pemesan").value.trim() : "";
     const kontak = document.getElementById("kontak-pemesan") ? document.getElementById("kontak-pemesan").value.trim() : "";
     const kategori = document.getElementById("kategori-layanan") ? document.getElementById("kategori-layanan").value : "";
@@ -317,6 +390,7 @@ function initAccessibleForm() {
     const catatan = document.getElementById("catatan-pesanan") ? document.getElementById("catatan-pesanan").value.trim() : "";
 
     const payload = {
+      csrf_token: csrfToken,
       nama: nama,
       kontak: kontak,
       kategori: kategori,
@@ -332,8 +406,10 @@ function initAccessibleForm() {
     try {
       const response = await fetch("api/pemesanan.php", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken
         },
         body: JSON.stringify(payload)
       });
@@ -342,16 +418,19 @@ function initAccessibleForm() {
 
       if (response.ok && result.status === "success") {
         statusContainer.className = "form-status is-visible status-success";
-        statusContainer.innerHTML = `✅ <strong>Pemesanan Berhasil Disimpan ke Basis Data!</strong><br>Terima kasih, <strong>${result.data.nama}</strong>. Permintaan untuk <strong>${result.data.kategori}</strong> (${result.data.jumlah} unit/paket) telah tercatat di sistem dengan <strong>ID #${result.data.id}</strong>. Tim UMKM Pesisir akan segera menghubungi kontak <strong>${result.data.kontak}</strong>.`;
+        statusContainer.innerHTML = `<strong>Pemesanan Berhasil Disimpan ke Basis Data!</strong><br>Terima kasih, <strong>${escapeHtml(result.data.nama)}</strong>. Permintaan untuk <strong>${escapeHtml(result.data.kategori)}</strong> (${escapeHtml(result.data.jumlah)} unit/paket) telah tercatat di sistem dengan <strong>ID #${escapeHtml(result.data.id)}</strong>. Tim UMKM Pesisir akan segera menghubungi kontak <strong>${escapeHtml(result.data.kontak)}</strong>.`;
         form.reset();
+        if (csrfInput) csrfInput.value = activeCsrfToken;
       } else {
-        const errorMsg = result.message || (result.errors ? Object.values(result.errors).join("<br>") : "Terjadi kesalahan saat memproses data.");
+        const errorMsg = result.message
+          ? escapeHtml(result.message)
+          : (result.errors ? Object.values(result.errors).map(escapeHtml).join("<br>") : "Terjadi kesalahan saat memproses data.");
         statusContainer.className = "form-status is-visible status-error";
-        statusContainer.innerHTML = `⚠️ <strong>Pemesanan Gagal Disimpan:</strong> ${errorMsg}`;
+        statusContainer.innerHTML = `<strong>Pemesanan Gagal Disimpan:</strong> ${errorMsg}`;
       }
     } catch (err) {
       statusContainer.className = "form-status is-visible status-error";
-      statusContainer.innerHTML = `⚠️ <strong>Koneksi Gagal:</strong> Tidak dapat terhubung ke server/database. (${err.message})`;
+      statusContainer.innerHTML = `<strong>Koneksi Gagal:</strong> Tidak dapat terhubung ke server/database. (${escapeHtml(err.message)})`;
     } finally {
       if (btnKirim) {
         btnKirim.disabled = false;
@@ -364,7 +443,10 @@ function initAccessibleForm() {
   if (btnReset) {
     btnReset.addEventListener("click", () => {
       statusContainer.className = "form-status";
-      statusContainer.innerHTML = "";
+      statusContainer.textContent = "";
+      setTimeout(() => {
+        if (csrfInput) csrfInput.value = activeCsrfToken;
+      }, 0);
     });
   }
 }
@@ -415,14 +497,28 @@ function renderMeals(items, isSearching = false) {
   displayItems.forEach(meal => {
     const card = document.createElement("article");
     card.className = "card";
-    card.innerHTML = `
-      <h3>${meal.strMeal}</h3>
-      <figure>
-        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" width="100%" loading="lazy">
-        <figcaption>Kode Menu: #${meal.idMeal}</figcaption>
-      </figure>
-      <p>Olahan komoditas laut pesisir pilihan.</p>
-    `;
+
+    const heading = document.createElement("h3");
+    heading.textContent = meal.strMeal ?? "";
+    card.appendChild(heading);
+
+    const figure = document.createElement("figure");
+    const img = document.createElement("img");
+    img.src = sanitizeImageUrl(meal.strMealThumb);
+    img.alt = meal.strMeal ?? "";
+    img.setAttribute("width", "100%");
+    img.loading = "lazy";
+    figure.appendChild(img);
+
+    const figcaption = document.createElement("figcaption");
+    figcaption.textContent = `Kode Menu: #${meal.idMeal ?? ""}`;
+    figure.appendChild(figcaption);
+    card.appendChild(figure);
+
+    const desc = document.createElement("p");
+    desc.textContent = "Olahan komoditas laut pesisir pilihan.";
+    card.appendChild(desc);
+
     container.appendChild(card);
   });
 }
@@ -461,21 +557,30 @@ function tampilkanStatusError(pesan) {
   }
   if (!statusContainer) return;
 
-  statusContainer.innerHTML = `
-    <div class="status-error-box">
-      <p>⚠️ <strong>Gagal memuat data API:</strong> ${pesan} Menampilkan data cadangan.</p>
-      <button type="button" id="btn-retry-seafood" class="btn-retry">🔄 Coba Lagi</button>
-    </div>
-  `;
+  statusContainer.textContent = "";
+  const errorBox = document.createElement("div");
+  errorBox.className = "status-error-box";
 
-  const btnRetry = document.getElementById("btn-retry-seafood");
-  if (btnRetry) {
-    btnRetry.addEventListener("click", () => {
-      btnRetry.disabled = true;
-      btnRetry.textContent = "Memuat ulang...";
-      loadUsers();
-    });
-  }
+  const p = document.createElement("p");
+  const strong = document.createElement("strong");
+  strong.textContent = "Gagal memuat data API:";
+  p.appendChild(strong);
+  p.append(` ${pesan} Menampilkan data cadangan.`);
+  errorBox.appendChild(p);
+
+  const btnRetry = document.createElement("button");
+  btnRetry.type = "button";
+  btnRetry.id = "btn-retry-seafood";
+  btnRetry.className = "btn-retry";
+  btnRetry.textContent = "Coba Lagi";
+  btnRetry.addEventListener("click", () => {
+    btnRetry.disabled = true;
+    btnRetry.textContent = "Memuat ulang...";
+    loadUsers();
+  });
+  errorBox.appendChild(btnRetry);
+
+  statusContainer.appendChild(errorBox);
 }
 
 function bersihkanStatusError() {

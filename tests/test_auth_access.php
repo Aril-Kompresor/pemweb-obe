@@ -6,15 +6,21 @@
  * Serta memverifikasi Session Configuration, Regenerate ID, dan POST Logout
  */
 
-$host = 'http://localhost';
-$check = @file_get_contents("{$host}/api/health.php");
-$baseUrl = ($check !== false) ? $host : "{$host}/pemweb-obe";
+$customUrl = $argv[1] ?? getenv('BASE_URL') ?: null;
+if ($customUrl) {
+    $baseUrl = rtrim($customUrl, '/');
+} else {
+    $host = 'http://localhost';
+    $check = @file_get_contents("{$host}/api/health.php");
+    $baseUrl = ($check !== false) ? $host : "{$host}/pemweb-obe";
+}
 
 echo "Base URL: {$baseUrl}\n";
 
 class ClientSession {
     private string $cookieFile;
     private string $baseUrl;
+    private string $csrfToken = '';
 
     public function __construct(string $baseUrl) {
         $this->baseUrl = $baseUrl;
@@ -38,6 +44,9 @@ class ClientSession {
         curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookieFile);
 
         $reqHeaders = [];
+        if ($this->csrfToken !== '' && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            $reqHeaders[] = 'X-CSRF-Token: ' . $this->csrfToken;
+        }
         if ($body !== null) {
             $reqHeaders[] = 'Content-Type: application/json';
             curl_setopt($ch, CURLOPT_POSTFIELDS, is_string($body) ? $body : json_encode($body));
@@ -58,6 +67,9 @@ class ClientSession {
         }
 
         $json = json_decode($response, true);
+        if (is_array($json) && !empty($json['csrf_token'])) {
+            $this->csrfToken = (string)$json['csrf_token'];
+        }
         return [
             'code' => $httpCode,
             'raw' => $response,

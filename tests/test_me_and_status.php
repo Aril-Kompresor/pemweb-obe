@@ -4,15 +4,21 @@
  * Test Suite: Pengujian Endpoint /api/me.php & Pembuktian Perbedaan 401 vs 403
  */
 
-$host = 'http://localhost';
-$check = @file_get_contents("{$host}/api/health.php");
-$baseUrl = ($check !== false) ? $host : "{$host}/pemweb-obe";
+$customUrl = $argv[1] ?? getenv('BASE_URL') ?: null;
+if ($customUrl) {
+    $baseUrl = rtrim($customUrl, '/');
+} else {
+    $host = 'http://localhost';
+    $check = @file_get_contents("{$host}/api/health.php");
+    $baseUrl = ($check !== false) ? $host : "{$host}/pemweb-obe";
+}
 
 echo "Base URL: {$baseUrl}\n";
 
 class TestClient {
     private string $cookieFile;
     private string $baseUrl;
+    private string $csrfToken = '';
 
     public function __construct(string $baseUrl) {
         $this->baseUrl = $baseUrl;
@@ -35,6 +41,9 @@ class TestClient {
         curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookieFile);
 
         $headers = [];
+        if ($this->csrfToken !== '' && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH', 'DELETE'], true)) {
+            $headers[] = 'X-CSRF-Token: ' . $this->csrfToken;
+        }
         if ($body !== null) {
             $headers[] = 'Content-Type: application/json';
             curl_setopt($ch, CURLOPT_POSTFIELDS, is_string($body) ? $body : json_encode($body));
@@ -52,6 +61,9 @@ class TestClient {
         }
 
         $json = json_decode($raw, true);
+        if (is_array($json) && !empty($json['csrf_token'])) {
+            $this->csrfToken = (string)$json['csrf_token'];
+        }
         return ['code' => $code, 'raw' => $raw, 'json' => $json];
     }
 

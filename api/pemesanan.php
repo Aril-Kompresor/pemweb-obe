@@ -13,7 +13,7 @@ if (php_sapi_name() !== 'cli') {
     header('Content-Type: application/json; charset=UTF-8');
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-HTTP-Method-Override');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-HTTP-Method-Override, X-CSRF-Token');
 }
 
 $requestMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -37,8 +37,9 @@ if ($requestMethod === 'OPTIONS') {
 // TRY/CATCH BOUNDARY API: Menjamin response 500 generik tanpa leak
 // =============================================================
 try {
-    // Simulasi kegagalan database untuk pengujian keamanan (Memastikan tidak ada leak password / stack trace ke client)
-    if (isset($_GET['simulate_db_error']) && $_GET['simulate_db_error'] === '1') {
+    // Simulasi kegagalan database untuk pengujian keamanan (hanya aktif pada environment local + debug)
+    $isLocalDebug = (($_ENV['APP_ENV'] ?? 'production') === 'local') && (strtolower((string)($_ENV['APP_DEBUG'] ?? 'false')) === 'true');
+    if ($isLocalDebug && isset($_GET['simulate_db_error']) && $_GET['simulate_db_error'] === '1') {
         throw new PDOException("SQLSTATE[HY000] [1045] Access denied for user 'root'@'127.0.0.1' (using password: YES) with secret db_password_rahasia_123");
     }
 
@@ -139,10 +140,15 @@ try {
             $totalPages = $totalRecords > 0 ? (int)ceil($totalRecords / $limit) : 1;
             $offset = ($page - 1) * $limit;
 
-            $sql .= " LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+            $sql .= " LIMIT :limit OFFSET :offset";
 
             $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
+            foreach ($params as $key => $val) {
+                $stmt->bindValue(':' . ltrim($key, ':'), $val, PDO::PARAM_STR);
+            }
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $stmt->execute();
             $data = $stmt->fetchAll();
 
             http_response_code(200);
@@ -194,6 +200,9 @@ try {
         requireJsonContentTypeMiddleware();
 
         $rawInput = file_get_contents('php://input');
+        $decodedForCsrf = json_decode($rawInput, true);
+        requireCsrfToken(is_array($decodedForCsrf) ? $decodedForCsrf : null);
+
         if (empty(trim($rawInput))) {
             http_response_code(400);
             echo json_encode([
@@ -324,6 +333,9 @@ try {
         requireJsonContentTypeMiddleware();
 
         $rawInput = file_get_contents('php://input');
+        $decodedForCsrf = json_decode($rawInput, true);
+        requireCsrfToken(is_array($decodedForCsrf) ? $decodedForCsrf : null);
+
         if (empty(trim($rawInput))) {
             http_response_code(400);
             echo json_encode([
@@ -496,14 +508,15 @@ try {
     // ---------------------------------------------------------
     if ($requestMethod === 'DELETE') {
         requireRole(['admin']);
+
+        $rawInput = file_get_contents('php://input');
+        $decodedForCsrf = !empty(trim($rawInput)) ? json_decode($rawInput, true) : null;
+        requireCsrfToken(is_array($decodedForCsrf) ? $decodedForCsrf : null);
+
         $idRaw = $_GET['id'] ?? null;
         if ($idRaw === null || trim((string)$idRaw) === '') {
-            $rawInput = file_get_contents('php://input');
-            if (!empty(trim($rawInput))) {
-                $input = json_decode($rawInput, true);
-                if (is_array($input) && isset($input['id'])) {
-                    $idRaw = $input['id'];
-                }
+            if (is_array($decodedForCsrf) && isset($decodedForCsrf['id'])) {
+                $idRaw = $decodedForCsrf['id'];
             }
         }
 

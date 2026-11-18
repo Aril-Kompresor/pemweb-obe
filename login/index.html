@@ -21,7 +21,8 @@
 
       <div id="login-alert" class="login-alert" role="alert" aria-live="polite"></div>
 
-      <form id="form-login" novalidate>
+      <form id="form-login" method="post" novalidate>
+        <input type="hidden" name="csrf_token" id="csrf-token-login" value="">
         <div class="form-group">
           <label for="email">Email</label>
           <input 

@@ -76,6 +76,75 @@ function requireRole(array $allowedRoles): array {
 }
 
 /**
+ * Generate atau ambil CSRF token aktif pada session (256-bit cryptographically secure)
+ */
+function generateCsrfToken(bool $forceRegenerate = false): string {
+    configureSecureSession();
+
+    if ($forceRegenerate || empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Mengambil CSRF token yang dikirim klien melalui body JSON, hidden input $_POST, atau header X-CSRF-Token
+ */
+function extractCsrfTokenFromRequest(?array $payload = null): string {
+    if (is_array($payload) && isset($payload['csrf_token']) && is_string($payload['csrf_token'])) {
+        return trim($payload['csrf_token']);
+    }
+
+    if (isset($_POST['csrf_token']) && is_string($_POST['csrf_token'])) {
+        return trim($_POST['csrf_token']);
+    }
+
+    if (!empty($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        return trim((string)$_SERVER['HTTP_X_CSRF_TOKEN']);
+    }
+
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        foreach ($headers as $key => $val) {
+            if (strcasecmp($key, 'X-CSRF-Token') === 0) {
+                return trim((string)$val);
+            }
+        }
+    }
+
+    return '';
+}
+
+/**
+ * Helper Proteksi CSRF:
+ * Memverifikasi token CSRF menggunakan hash_equals() (constant-time comparison)
+ * sebelum operasi perubahan state (POST/PUT/PATCH/DELETE) dieksekusi.
+ */
+function requireCsrfToken(?array $payload = null): void {
+    configureSecureSession();
+
+    $sessionToken = $_SESSION['csrf_token'] ?? '';
+    $submittedToken = extractCsrfTokenFromRequest($payload);
+
+    if (
+        !is_string($sessionToken) ||
+        $sessionToken === '' ||
+        $submittedToken === '' ||
+        !hash_equals($sessionToken, $submittedToken)
+    ) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode([
+            'status' => 'error',
+            'code' => 403,
+            'message' => 'Token CSRF tidak valid atau tidak ditemukan. Muat ulang halaman lalu coba kembali.'
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+/**
  * Middleware pemeriksa format payload JSON
  */
 function requireJsonContentTypeMiddleware(?callable $next = null) {
