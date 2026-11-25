@@ -1,6 +1,7 @@
 {
     "name": "aril/pemweb-obe",
     "description": "Sistem Informasi UMKM Pesisir - Pemweb OBE",
+    "license": "MIT",
     "type": "project",
     "authors": [
         {

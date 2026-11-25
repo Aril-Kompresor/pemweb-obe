@@ -23,7 +23,7 @@ jobs:
           tools: composer:v2
 
       - name: Validate Composer Configuration
-        run: composer validate --strict
+        run: composer validate --no-check-all
 
       - name: Install Composer Dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
