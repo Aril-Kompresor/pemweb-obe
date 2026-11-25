@@ -1,0 +1,535 @@
+{
+  "info": {
+    "_postman_id": "7b8e1a2f-9812-4c6e-8211-pemweb-obe-2026",
+    "name": "UMKM Pesisir - API Testing Collection",
+    "description": "Koleksi Postman untuk pengujian REST API Sistem Informasi & E-Commerce UMKM Pesisir (Autentikasi, RBAC, CRUD Alat, Pemesanan, Validasi, dan Error Handling).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/pemweb-obe",
+      "type": "string"
+    },
+    {
+      "key": "csrf_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Utilitas & CSRF Token",
+      "item": [
+        {
+          "name": "Cek Kesehatan API (Health Check)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Dapatkan CSRF Token Baru",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code adalah 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.csrf_token) {",
+                  "    pm.collectionVariables.set(\"csrf_token\", jsonData.csrf_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/csrf.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "csrf.php"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Autentikasi & Sesi Pengguna",
+      "item": [
+        {
+          "name": "Login Admin Valid (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login Admin Berhasil 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.csrf_token) {",
+                  "    pm.collectionVariables.set(\"csrf_token\", jsonData.csrf_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@pesisir.id\",\n  \"password\": \"password123\",\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Password Salah (401 Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login Gagal 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@pesisir.id\",\n  \"password\": \"kata_sandi_salah\",\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cek Data Profil Sesi Aktif (/api/me.php)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/me.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "me.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Viewer (Untuk Uji RBAC)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login Viewer Berhasil\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.csrf_token) {",
+                  "    pm.collectionVariables.set(\"csrf_token\", jsonData.csrf_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nelayan.berkah@pesisir.id\",\n  \"password\": \"password123\",\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout Pengguna",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/logout.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "logout.php"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. CRUD Inventaris Alat (/api/alats.php)",
+      "item": [
+        {
+          "name": "Ambil Daftar Alat & Paginasi (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?limit=5&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "limit", "value": "5" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pencarian Alat Berdasarkan Nama (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?search=Jaring",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "search", "value": "Jaring" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ambil Detail Alat Berdasarkan ID (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tambah Alat Baru (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\",\n  \"nama\": \"Jaring Insang Monofilamen Uji Postman\",\n  \"kategori\": \"Tangkap\",\n  \"jumlah\": 12,\n  \"kondisi\": \"Baik\",\n  \"lokasi\": \"Gudang A\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Perbarui Data Alat (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\",\n  \"nama\": \"Jaring Insang Monofilamen Diperbarui\",\n  \"kategori\": \"Tangkap\",\n  \"jumlah\": 15,\n  \"kondisi\": \"Baik\",\n  \"lokasi\": \"Dermaga 1\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Hapus Data Alat (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Pemesanan Layanan (/api/pemesanan.php)",
+      "item": [
+        {
+          "name": "Ambil Daftar Pemesanan (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/pemesanan.php?limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pemesanan.php"],
+              "query": [
+                { "key": "limit", "value": "10" },
+                { "key": "offset", "value": "0" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Kirim Pemesanan Baru Valid (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\",\n  \"nama\": \"Kelompok Nelayan Berkah\",\n  \"kontak\": \"081234567890\",\n  \"kategori\": \"Keripik Ikan Tenggiri\",\n  \"jumlah\": 10,\n  \"catatan\": \"Pesanan via Postman, alamat Jl. Mulawarman No. 67\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/pemesanan.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pemesanan.php"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Pengujian Validasi, RBAC & API Error",
+      "item": [
+        {
+          "name": "Validasi Error: Field Wajib Kosong (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Validasi Field Kosong Menghasilkan 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\",\n  \"nama\": \"\",\n  \"kategori\": \"\",\n  \"jumlah\": -5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Error Handling: ID Alat Tidak Ditemukan (404 Not Found)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"ID Tidak Ada Menghasilkan 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?id=999999",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "id", "value": "999999" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Security: Mutasi Data Tanpa CSRF Token (403 Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tanpa CSRF Menghasilkan 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Alat Tanpa Token\",\n  \"kategori\": \"Tangkap\",\n  \"jumlah\": 5,\n  \"kondisi\": \"Baik\",\n  \"lokasi\": \"Gudang A\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RBAC: Viewer Menghapus Alat (403 Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Viewer Ditolak Menghapus 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"csrf_token\": \"{{csrf_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/alats.php?id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "alats.php"],
+              "query": [
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
